@@ -1,0 +1,28 @@
+.smi-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--border);
+  background: rgba(18, 22, 31, 0.6);
+  backdrop-filter: blur(6px);
+}
+.smi-topbar-crumb { font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+.smi-topbar-title { font-size: 17px; font-weight: 600; }
+.smi-topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+.smi-bellbadge {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  background: #F8717A;
+  color: #1a0a0a;
+  font-size: 9px;
+  font-weight: 700;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

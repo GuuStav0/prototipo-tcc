@@ -1,0 +1,9 @@
+.smi-led {
+  border-radius: 50%;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.smi-led-pulse {
+  animation: smi-pulse 1.4s ease-in-out infinite;
+}
