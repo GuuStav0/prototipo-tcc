@@ -24,7 +24,7 @@ export default function Dashboard() {
 
       <div className="smi-grid-2">
         <div className="smi-card">
-          <div className="smi-card-title">Gatilhos por severidade <span className="smi-muted">— lógica de triggers (Nagios)</span></div>
+          <div className="smi-card-title">Gatilhos por severidade</div>
           <div className="smi-severity-bar">
             <div style={{ width: `${(critCount / total) * 100}%`, background: STATUS.critical.color }} />
             <div style={{ width: `${(warnCount / total) * 100}%`, background: STATUS.warning.color }} />
