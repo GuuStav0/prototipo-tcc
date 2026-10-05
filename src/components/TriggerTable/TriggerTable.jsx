@@ -1,4 +1,3 @@
-import React from "react";
 import Led from "../Led/Led";
 
 export default function TriggerTable({ rows, compact }) {

@@ -1,4 +1,3 @@
-import React from "react";
 import { STATUS, METRIC_META } from "../../data/mockData";
 import "./MetricBar.css";
 

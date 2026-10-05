@@ -1,0 +1,806 @@
+openapi: 3.1.0
+info:
+  title: SMI · API do Sistema de Monitoramento de Integridade
+  version: 0.1.0
+  description: |
+    Contrato entre o front-end (dashboard), o backend (motor de gatilhos),
+    os coletores (SNMP / IPMI / agente / simulador) e o servidor MCP da IA.
+    Explicação das decisões em docs/contrato/explicacao-contrato.txt.
+
+    Convenções:
+    - JSON em snake_case; datas em ISO 8601 UTC; durações em segundos.
+    - Códigos de estado em inglês (ok, warning, critical, unknown); os rótulos
+      em português ficam por conta do front-end.
+    - Erros sempre no formato { "error": { "code", "message" } }.
+
+servers:
+  - url: http://localhost:8000/api/v1
+
+# Protótipo: as rotas do dashboard ficam sem autenticação (rede interna).
+# Só a ingestão exige token, definido na própria rota.
+security: []
+
+tags:
+  - name: sistema
+  - name: servidores
+  - name: métricas
+  - name: gatilhos
+  - name: alertas
+  - name: relatórios
+  - name: coleta
+  - name: assistente
+
+paths:
+  /health:
+    get:
+      tags: [sistema]
+      summary: Saúde do próprio serviço de monitoramento
+      description: Usado para medir a disponibilidade do SMI (meta de 99%, seção 4.5).
+      responses:
+        "200":
+          description: Serviço no ar
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Health" }
+
+  /overview:
+    get:
+      tags: [sistema]
+      summary: Indicadores consolidados da tela "Visão Geral"
+      parameters:
+        - $ref: "#/components/parameters/Range"
+      responses:
+        "200":
+          description: Indicadores
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Overview" }
+
+  /servers:
+    get:
+      tags: [servidores]
+      summary: Lista os servidores com o último valor de cada métrica
+      parameters:
+        - name: status
+          in: query
+          schema: { $ref: "#/components/schemas/HostStatus" }
+      responses:
+        "200":
+          description: Lista de servidores
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Server" }
+    post:
+      tags: [servidores]
+      summary: Cadastra um servidor para monitoramento
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ServerInput" }
+      responses:
+        "201":
+          description: Criado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Server" }
+        "409": { $ref: "#/components/responses/Conflict" }
+        "422": { $ref: "#/components/responses/Invalid" }
+
+  /servers/{host_id}:
+    parameters:
+      - $ref: "#/components/parameters/HostId"
+    get:
+      tags: [servidores]
+      summary: Detalhe de um servidor
+      responses:
+        "200":
+          description: Servidor
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Server" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [servidores]
+      summary: Altera dados do servidor (campos omitidos não mudam)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ServerInput" }
+      responses:
+        "200":
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Server" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/Invalid" }
+    delete:
+      tags: [servidores]
+      summary: Remove o servidor do monitoramento
+      responses:
+        "204": { description: Removido }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /servers/{host_id}/metrics:
+    get:
+      tags: [métricas]
+      summary: Série temporal de uma ou mais métricas do servidor
+      description: |
+        Os pontos são agregados em janelas de `step` segundos. Se `step` não
+        for informado, o backend escolhe um valor que gere cerca de 300 pontos.
+      parameters:
+        - $ref: "#/components/parameters/HostId"
+        - name: metric
+          in: query
+          required: true
+          description: Uma ou mais métricas separadas por vírgula (ex. cpu,temp)
+          schema: { type: string, example: cpu }
+        - $ref: "#/components/parameters/Range"
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - name: step
+          in: query
+          schema: { type: integer, minimum: 15, example: 300 }
+        - name: aggregation
+          in: query
+          schema: { type: string, enum: [avg, max, min], default: avg }
+      responses:
+        "200":
+          description: Séries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Series" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /triggers:
+    get:
+      tags: [gatilhos]
+      summary: Lista as regras de gatilho
+      parameters:
+        - name: host_id
+          in: query
+          description: Retorna as regras que valem para este host (globais + específicas)
+          schema: { type: string }
+        - name: metric
+          in: query
+          schema: { $ref: "#/components/schemas/MetricKey" }
+      responses:
+        "200":
+          description: Regras
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Trigger" }
+    post:
+      tags: [gatilhos]
+      summary: Cria uma regra de gatilho
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TriggerInput" }
+      responses:
+        "201":
+          description: Criada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Trigger" }
+        "422": { $ref: "#/components/responses/Invalid" }
+
+  /triggers/{trigger_id}:
+    parameters:
+      - name: trigger_id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [gatilhos]
+      summary: Detalhe de uma regra
+      responses:
+        "200":
+          description: Regra
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Trigger" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [gatilhos]
+      summary: Altera limiares, duração ou ativa/desativa a regra
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/TriggerInput" }
+      responses:
+        "200":
+          description: Atualizada
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Trigger" }
+        "404": { $ref: "#/components/responses/NotFound" }
+        "422": { $ref: "#/components/responses/Invalid" }
+    delete:
+      tags: [gatilhos]
+      summary: Remove a regra (alertas antigos são mantidos no histórico)
+      responses:
+        "204": { description: Removida }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /alerts:
+    get:
+      tags: [alertas]
+      summary: Histórico de disparos (mais recentes primeiro)
+      parameters:
+        - name: status
+          in: query
+          schema: { type: string, enum: [active, resolved] }
+        - name: severity
+          in: query
+          schema: { $ref: "#/components/schemas/Severity" }
+        - name: host_id
+          in: query
+          schema: { type: string }
+        - name: trigger_id
+          in: query
+          schema: { type: integer }
+        - $ref: "#/components/parameters/From"
+        - $ref: "#/components/parameters/To"
+        - name: limit
+          in: query
+          schema: { type: integer, default: 50, maximum: 500 }
+        - name: offset
+          in: query
+          schema: { type: integer, default: 0 }
+      responses:
+        "200":
+          description: Alertas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Alert" }
+                  total: { type: integer }
+
+  /alerts/{alert_id}:
+    parameters:
+      - name: alert_id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [alertas]
+      summary: Detalhe de um alerta
+      responses:
+        "200":
+          description: Alerta
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Alert" }
+        "404": { $ref: "#/components/responses/NotFound" }
+    patch:
+      tags: [alertas]
+      summary: Reconhece o alerta e/ou o classifica como verdadeiro ou falso positivo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/AlertUpdate" }
+      responses:
+        "200":
+          description: Atualizado
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Alert" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /reports:
+    get:
+      tags: [relatórios]
+      summary: Lista os relatórios gerados
+      responses:
+        "200":
+          description: Relatórios (sem o conteúdo completo)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items: { $ref: "#/components/schemas/Report" }
+    post:
+      tags: [relatórios]
+      summary: Pede a geração de um relatório (assíncrona, feita pela IA)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ReportCreate" }
+      responses:
+        "202":
+          description: Aceito; consultar GET /reports/{id} até status = ready
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Report" }
+        "422": { $ref: "#/components/responses/Invalid" }
+
+  /reports/{report_id}:
+    parameters:
+      - name: report_id
+        in: path
+        required: true
+        schema: { type: integer }
+    get:
+      tags: [relatórios]
+      summary: Relatório completo (inclui o conteúdo em Markdown)
+      responses:
+        "200":
+          description: Relatório
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Report" }
+        "404": { $ref: "#/components/responses/NotFound" }
+
+  /ingest/metrics:
+    post:
+      tags: [coleta]
+      summary: Recebe leituras dos coletores (SNMP, IPMI, agente local ou simulador)
+      description: |
+        Porta de entrada única dos dados. O backend grava as leituras no
+        InfluxDB e avalia os gatilhos logo em seguida.
+      security:
+        - IngestToken: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/IngestBatch" }
+      responses:
+        "202":
+          description: Lote aceito
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  accepted: { type: integer }
+                  rejected:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        index: { type: integer }
+                        reason: { type: string }
+        "401": { $ref: "#/components/responses/Unauthorized" }
+        "422": { $ref: "#/components/responses/Invalid" }
+
+  /assistant/messages:
+    post:
+      tags: [assistente]
+      summary: Envia uma mensagem ao assistente de IA (etapa 4)
+      description: |
+        O backend repassa a pergunta ao LLM, que consulta os dados pelas
+        ferramentas do servidor MCP. As ferramentas usadas voltam em tool_calls
+        para o chat mostrar o que foi consultado.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: "#/components/schemas/ChatRequest" }
+      responses:
+        "200":
+          description: Resposta do assistente
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/ChatResponse" }
+
+components:
+  securitySchemes:
+    IngestToken:
+      type: apiKey
+      in: header
+      name: X-Ingest-Token
+
+  parameters:
+    HostId:
+      name: host_id
+      in: path
+      required: true
+      schema: { type: string, example: srv-app-02 }
+    Range:
+      name: range
+      in: query
+      description: Janela relativa ao momento atual. Ignorado se from/to forem enviados.
+      schema: { type: string, enum: [1h, 6h, 24h, 7d, 30d], default: 24h }
+    From:
+      name: from
+      in: query
+      schema: { type: string, format: date-time }
+    To:
+      name: to
+      in: query
+      schema: { type: string, format: date-time }
+
+  responses:
+    NotFound:
+      description: Recurso não encontrado
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Conflict:
+      description: Já existe um recurso com esse identificador
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Invalid:
+      description: Dados inválidos
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+    Unauthorized:
+      description: Token ausente ou inválido
+      content:
+        application/json:
+          schema: { $ref: "#/components/schemas/Error" }
+
+  schemas:
+    # ---------- enums ----------
+    HostStatus:
+      type: string
+      enum: [ok, warning, critical, unknown]
+      description: |
+        ok/warning/critical seguem a seção 2.4 do TCC. unknown = sem dados
+        recentes do coletor (não é severidade de gatilho).
+    Severity:
+      type: string
+      enum: [warning, critical]
+    MetricKey:
+      type: string
+      enum: [cpu, ram, disk, temp, reachable]
+    MetricUnit:
+      type: string
+      enum: [percent, celsius, bool]
+    Source:
+      type: string
+      enum: [snmp, ipmi, agent, simulator]
+
+    # ---------- servidor ----------
+    MetricReading:
+      type: object
+      properties:
+        value: { type: [number, "null"], example: 96.0 }
+        unit: { $ref: "#/components/schemas/MetricUnit" }
+        status: { $ref: "#/components/schemas/HostStatus" }
+        source: { $ref: "#/components/schemas/Source" }
+        collected_at: { type: [string, "null"], format: date-time }
+
+    Server:
+      type: object
+      properties:
+        id: { type: string, example: srv-app-02, description: "slug único; igual ao nome curto do host" }
+        name: { type: string, example: srv-app-02 }
+        address: { type: string, example: 10.0.3.32, description: IP ou hostname usado pelo coletor }
+        role: { type: string, example: API Gateway }
+        os: { type: string, example: Ubuntu 22.04 }
+        location: { type: [string, "null"], example: Rack A2 }
+        enabled: { type: boolean, description: "false = cadastrado, mas sem coleta" }
+        collection:
+          type: object
+          description: Como o host é coletado (credenciais nunca são devolvidas)
+          properties:
+            snmp:
+              type: object
+              properties:
+                enabled: { type: boolean }
+                version: { type: string, enum: [v2c, v3] }
+                port: { type: integer, default: 161 }
+            ipmi:
+              type: object
+              properties:
+                enabled: { type: boolean }
+                address: { type: [string, "null"] }
+            agent:
+              type: object
+              properties:
+                enabled: { type: boolean }
+        status: { $ref: "#/components/schemas/HostStatus" }
+        last_seen_at: { type: [string, "null"], format: date-time }
+        uptime_seconds: { type: [integer, "null"], example: 504000 }
+        metrics:
+          type: object
+          description: Último valor de cada métrica
+          properties:
+            cpu: { $ref: "#/components/schemas/MetricReading" }
+            ram: { $ref: "#/components/schemas/MetricReading" }
+            disk: { $ref: "#/components/schemas/MetricReading" }
+            temp: { $ref: "#/components/schemas/MetricReading" }
+            reachable: { $ref: "#/components/schemas/MetricReading" }
+        active_alerts:
+          type: object
+          properties:
+            warning: { type: integer }
+            critical: { type: integer }
+        created_at: { type: string, format: date-time }
+
+    ServerInput:
+      type: object
+      required: [id, name, address]
+      properties:
+        id: { type: string, pattern: "^[a-z0-9][a-z0-9-]{1,62}$" }
+        name: { type: string }
+        address: { type: string }
+        role: { type: string }
+        os: { type: string }
+        location: { type: [string, "null"] }
+        enabled: { type: boolean, default: true }
+        snmp:
+          type: object
+          properties:
+            enabled: { type: boolean, default: true }
+            version: { type: string, enum: [v2c, v3], default: v2c }
+            port: { type: integer, default: 161 }
+            community: { type: string, writeOnly: true, description: "SNMP v2c" }
+            username: { type: string, writeOnly: true, description: "SNMP v3" }
+            auth_password: { type: string, writeOnly: true }
+            priv_password: { type: string, writeOnly: true }
+        ipmi:
+          type: object
+          properties:
+            enabled: { type: boolean, default: false }
+            address: { type: string }
+            username: { type: string, writeOnly: true }
+            password: { type: string, writeOnly: true }
+        agent:
+          type: object
+          properties:
+            enabled: { type: boolean, default: false }
+
+    # ---------- métricas ----------
+    Series:
+      type: object
+      properties:
+        host_id: { type: string }
+        metric: { $ref: "#/components/schemas/MetricKey" }
+        unit: { $ref: "#/components/schemas/MetricUnit" }
+        from: { type: string, format: date-time }
+        to: { type: string, format: date-time }
+        step_seconds: { type: integer, example: 300 }
+        aggregation: { type: string, enum: [avg, max, min] }
+        points:
+          type: array
+          description: "t = início da janela; v = valor agregado (null = sem dados)"
+          items:
+            type: object
+            properties:
+              t: { type: string, format: date-time }
+              v: { type: [number, "null"] }
+
+    # ---------- gatilhos ----------
+    Trigger:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string, example: CPU acima do limite }
+        description: { type: [string, "null"] }
+        metric: { $ref: "#/components/schemas/MetricKey" }
+        host_id:
+          type: [string, "null"]
+          description: null = regra global (vale para todos os hosts)
+        operator: { type: string, enum: [gt, gte, lt, lte] }
+        warning_threshold: { type: [number, "null"], example: 80 }
+        critical_threshold: { type: [number, "null"], example: 90 }
+        duration_seconds:
+          type: integer
+          example: 60
+          description: Tempo que a condição precisa durar para disparar (e para resolver)
+        enabled: { type: boolean }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    TriggerInput:
+      type: object
+      required: [name, metric, operator]
+      properties:
+        name: { type: string }
+        description: { type: [string, "null"] }
+        metric: { $ref: "#/components/schemas/MetricKey" }
+        host_id: { type: [string, "null"] }
+        operator: { type: string, enum: [gt, gte, lt, lte] }
+        warning_threshold: { type: [number, "null"] }
+        critical_threshold: { type: [number, "null"] }
+        duration_seconds: { type: integer, minimum: 0, default: 60 }
+        enabled: { type: boolean, default: true }
+
+    # ---------- alertas ----------
+    Alert:
+      type: object
+      description: Uma ocorrência de gatilho, do disparo até a resolução
+      properties:
+        id: { type: integer }
+        trigger_id: { type: integer }
+        trigger_name: { type: string, description: "cópia do nome no momento do disparo" }
+        host_id: { type: string }
+        metric: { $ref: "#/components/schemas/MetricKey" }
+        unit: { $ref: "#/components/schemas/MetricUnit" }
+        severity: { $ref: "#/components/schemas/Severity" }
+        peak_severity: { $ref: "#/components/schemas/Severity" }
+        status: { type: string, enum: [active, resolved] }
+        threshold: { type: number, description: limiar da severidade atual }
+        value_first: { type: number, description: valor no disparo }
+        value_peak: { type: number, description: pior valor durante o alerta }
+        value_last: { type: number, description: valor mais recente }
+        first_breach_at:
+          type: string
+          format: date-time
+          description: primeira leitura que violou o limiar
+        started_at:
+          type: string
+          format: date-time
+          description: momento do disparo (first_breach_at + duration)
+        resolved_at: { type: [string, "null"], format: date-time }
+        acknowledged_at: { type: [string, "null"], format: date-time }
+        acknowledged_by: { type: [string, "null"] }
+        validation:
+          type: [string, "null"]
+          enum: [true_positive, false_positive, null]
+          description: Classificação manual usada na métrica de precisão dos alertas (seção 4.5)
+        note: { type: [string, "null"] }
+
+    AlertUpdate:
+      type: object
+      properties:
+        acknowledged: { type: boolean }
+        acknowledged_by: { type: string }
+        validation: { type: [string, "null"], enum: [true_positive, false_positive, null] }
+        note: { type: [string, "null"] }
+
+    # ---------- visão geral ----------
+    Overview:
+      type: object
+      properties:
+        range: { type: string, example: 24h }
+        generated_at: { type: string, format: date-time }
+        availability:
+          type: object
+          properties:
+            percent: { type: number, example: 99.94, description: "SLI: leituras com host alcançável / total" }
+            slo_percent: { type: number, example: 99.9 }
+        hosts:
+          type: object
+          properties:
+            total: { type: integer }
+            ok: { type: integer }
+            warning: { type: integer }
+            critical: { type: integer }
+            unknown: { type: integer }
+        alerts_active:
+          type: object
+          properties:
+            warning: { type: integer }
+            critical: { type: integer }
+        mttr_seconds:
+          type: [integer, "null"]
+          description: Média de (resolved_at - started_at) dos alertas resolvidos na janela
+        recent_alerts:
+          type: array
+          maxItems: 10
+          items: { $ref: "#/components/schemas/Alert" }
+
+    # ---------- relatórios ----------
+    Report:
+      type: object
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        type: { type: string, enum: [availability, incidents, performance, audit] }
+        period_from: { type: string, format: date-time }
+        period_to: { type: string, format: date-time }
+        host_ids:
+          type: [array, "null"]
+          items: { type: string }
+          description: null = toda a infraestrutura
+        status: { type: string, enum: [pending, ready, failed] }
+        generated_by: { type: string, enum: [system, user, assistant] }
+        requested_by: { type: [string, "null"] }
+        created_at: { type: string, format: date-time }
+        completed_at: { type: [string, "null"], format: date-time }
+        summary: { type: [string, "null"], description: resumo de 1 a 2 frases }
+        content:
+          type: [string, "null"]
+          description: Texto completo em Markdown (só em GET /reports/{id})
+
+    ReportCreate:
+      type: object
+      required: [type]
+      properties:
+        type: { type: string, enum: [availability, incidents, performance, audit] }
+        title: { type: string }
+        range: { type: string, enum: [24h, 7d, 30d] }
+        period_from: { type: string, format: date-time }
+        period_to: { type: string, format: date-time }
+        host_ids:
+          type: array
+          items: { type: string }
+
+    # ---------- coleta ----------
+    IngestBatch:
+      type: object
+      required: [source, samples]
+      properties:
+        source: { $ref: "#/components/schemas/Source" }
+        collector_id: { type: string, example: srv-monitor-01 }
+        samples:
+          type: array
+          maxItems: 5000
+          items:
+            type: object
+            required: [host_id, metric, value, collected_at]
+            properties:
+              host_id: { type: string }
+              metric: { $ref: "#/components/schemas/MetricKey" }
+              value: { type: number }
+              collected_at: { type: string, format: date-time }
+
+    # ---------- assistente ----------
+    ChatRequest:
+      type: object
+      required: [message]
+      properties:
+        conversation_id: { type: [string, "null"] }
+        message: { type: string, maxLength: 4000 }
+
+    ChatResponse:
+      type: object
+      properties:
+        conversation_id: { type: string }
+        reply: { type: string, description: Texto da resposta em Markdown }
+        tool_calls:
+          type: array
+          items:
+            type: object
+            properties:
+              name: { type: string, example: get_alert_history }
+              arguments: { type: object }
+        created_at: { type: string, format: date-time }
+
+    # ---------- sistema ----------
+    Health:
+      type: object
+      properties:
+        status: { type: string, enum: [ok, degraded, down] }
+        version: { type: string }
+        time: { type: string, format: date-time }
+        components:
+          type: object
+          properties:
+            database: { type: string, enum: [ok, down] }
+            influxdb: { type: string, enum: [ok, down] }
+            last_ingest_at: { type: [string, "null"], format: date-time }
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code: { type: string, example: server_not_found }
+            message: { type: string, example: Servidor 'srv-x' não encontrado }

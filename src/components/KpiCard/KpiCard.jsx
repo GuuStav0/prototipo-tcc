@@ -1,4 +1,3 @@
-import React from "react";
 import "./KpiCard.css";
 
 export default function KpiCard({ icon: Icon, label, value, sub, tone }) {

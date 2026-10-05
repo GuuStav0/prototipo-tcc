@@ -1,4 +1,3 @@
-import React from "react";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
 
 export default function MiniChart({ data, color }) {

@@ -1,4 +1,3 @@
-import React from "react";
 import { STATUS } from "../../data/mockData";
 import "./Led.css";
 

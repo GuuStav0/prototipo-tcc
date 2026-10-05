@@ -1,0 +1,451 @@
+SMI - SISTEMA DE MONITORAMENTO DE INTEGRIDADE PARA SERVIDORES
+Explicação do contrato de dados e da API (etapa 1)
+=====================================================================
+
+Este texto explica como foram definidos os formatos de servidor, métricas,
+gatilhos e alertas, além das rotas da API. A definição formal fica em
+docs/contrato/openapi.yaml (OpenAPI 3.1). Para ver a API de forma visual,
+abra https://editor.swagger.io e cole o conteúdo do arquivo.
+
+Nas citações, "TCC 4.5" quer dizer "seção 4.5 da monografia". Quando a
+monografia não diz nada sobre um ponto, isso aparece escrito como DECISÃO
+PRÓPRIA, para vocês validarem com o orientador.
+
+
+---------------------------------------------------------------------
+1. POR QUE DEFINIR O CONTRATO ANTES DO CÓDIGO
+---------------------------------------------------------------------
+
+O front-end, o backend, os coletores e o servidor MCP da IA trocam os
+mesmos objetos (servidor, métrica, gatilho e alerta). Com o formato fixado
+antes, cada parte pode ser feita e testada separadamente. O front continua
+com dados simulados enquanto o backend não existe, e o coletor simulado
+pode ser trocado pelo SNMP real sem mexer em mais nada.
+
+
+---------------------------------------------------------------------
+2. CONVENÇÕES GERAIS
+---------------------------------------------------------------------
+
+- JSON com nomes em snake_case (ex.: last_seen_at). É o padrão do Python e
+  do FastAPI, que é o backend sugerido. A bibliografia do TCC já cita
+  "Learning Python" (LUTZ, 2013).
+- Datas em ISO 8601, sempre em UTC (ex.: 2026-10-05T14:30:00Z). O front
+  converte para o horário local. Por isso o "há 4 min" do mock deixa de vir
+  do servidor: ele é calculado na tela a partir da data.
+- Durações em segundos (uptime_seconds, duration_seconds, mttr_seconds), e
+  não textos como "47d 06h". Número dá para ordenar, comparar e formatar.
+- Códigos de estado em inglês (ok, warning, critical) e rótulos em português
+  no front ("OK", "Aviso", "Crítico"). O front atual já faz isso no objeto
+  STATUS.
+- Erros sempre no mesmo formato:
+      { "error": { "code": "server_not_found", "message": "..." } }
+- Todas as rotas ficam sob /api/v1. O "v1" permite mudar a API no futuro
+  sem quebrar o que já funciona.
+
+
+---------------------------------------------------------------------
+3. FLUXO DOS DADOS E ONDE CADA COISA É GUARDADA
+---------------------------------------------------------------------
+
+   Coletor SNMP / IPMI / agente local / simulador
+        |
+        |  POST /ingest/metrics   (lotes de leituras)
+        v
+   Backend (API REST + motor de gatilhos)
+        |-- grava as leituras ------------------> InfluxDB  (séries temporais)
+        |-- avalia gatilhos, abre/fecha alertas -> SQLite   (cadastros e eventos)
+        v
+   Dashboard (React)  e  Servidor MCP (IA)  <- os dois leem pela mesma API
+
+Decisões:
+
+a) Entrada única pelo /ingest/metrics (DECISÃO PRÓPRIA). Todo coletor envia
+   para a mesma rota, e é ali que os gatilhos são avaliados. Trocar o
+   simulador pelo SNMP real (etapa 5) não muda nada no backend. Um agente
+   local também pode enviar dados de um host sem SNMP (o TCC 5.1 cita
+   "agentes locais").
+
+b) Dois bancos. O TCC 4.3 define o InfluxDB para as métricas, e o TCC 4.2
+   fala em "Sistemas de Gerenciamento de Banco de Dados", no plural. O
+   InfluxDB é ótimo para séries temporais, mas ruim para cadastros e
+   relações (servidor -> gatilho -> alerta). Por isso a sugestão é guardar
+   servidores, gatilhos, alertas e relatórios em SQLite (DECISÃO PRÓPRIA).
+   Ele não precisa de instalação e é um único arquivo, o que basta para um
+   protótipo. Se precisarem, dá para trocar por PostgreSQL sem mudar o
+   contrato.
+
+c) No InfluxDB, cada leitura vira um ponto assim:
+       measurement = hardware
+       tags        = host_id, metric, source
+       field       = value
+       timestamp   = collected_at
+
+
+---------------------------------------------------------------------
+4. SERVIDOR (objeto Server)
+---------------------------------------------------------------------
+
+Partimos do que o mock já tinha (nome, papel, SO, IP, status, uptime) e
+ajustamos o seguinte:
+
+- id: um texto curto e legível ("srv-app-02"), não um número. Ele aparece
+  na URL (/servidores/srv-app-02, rota que o front já usa) e nos alertas,
+  então ler "srv-app-02" é mais claro do que ler "7".
+
+- address: IP ou hostname que o coletor usa. Chamamos de "address" e não de
+  "ip" porque também aceita nome DNS.
+
+- collection: diz como o host é coletado (SNMP v2c/v3, IPMI, agente). Vem
+  do TCC 2.3. As credenciais (community, senhas) só entram no cadastro
+  (ServerInput, campos writeOnly) e NUNCA são devolvidas pela API.
+
+- status: estado do host. Os valores ok, warning e critical seguem o TCC 2.4
+  e o TCC 5.2. Acrescentamos "unknown" (DECISÃO PRÓPRIA, que segue o próprio
+  Nagios, que tem o estado UNKNOWN; JOSEPHSEN, 2007). Ele aparece quando o
+  backend para de receber dados do host. Sem esse estado, um coletor parado
+  mostraria o último "OK" para sempre, o que é perigoso num sistema de
+  monitoramento. Regra: sem leituras há mais de 3 ciclos de coleta (45 s),
+  o status passa a unknown.
+
+  O status do host é a pior severidade entre os alertas ativos dele:
+      algum alerta crítico ativo  -> critical
+      senão, algum aviso ativo    -> warning
+      senão, dados recentes       -> ok
+      sem dados recentes          -> unknown
+
+- metrics: último valor de cada métrica, com unidade, status, fonte e
+  horário da coleta. Assim a lista de servidores mostra as barras de
+  CPU/RAM/disco/temperatura com uma única requisição.
+
+- uptime_seconds: número em vez de texto (ver seção 2).
+
+- active_alerts: contagem de alertas ativos por severidade, para a lista de
+  servidores não precisar consultar os alertas de cada host.
+
+
+---------------------------------------------------------------------
+5. MÉTRICAS
+---------------------------------------------------------------------
+
+5.1 Quais métricas
+
+O TCC repete em vários pontos (Introdução, 3.1, 5.1, Abstract) as mesmas
+quatro métricas: CPU, memória, temperatura e disco. São elas:
+
+   chave      | o que mede                              | unidade  | fonte principal
+   -----------+-----------------------------------------+----------+------------------
+   cpu        | uso médio de CPU                        | percent  | SNMP
+   ram        | uso de memória                          | percent  | SNMP
+   disk       | uso da partição mais cheia              | percent  | SNMP
+   temp       | maior temperatura entre os sensores     | celsius  | IPMI (ou SNMP/lm-sensors)
+   reachable  | host respondeu à coleta? (1 = sim, 0 = não) | bool | coletor
+
+Os gatilhos de "latência de I/O", "SSH indisponível" e "job de backup" do
+mock atual FICARAM DE FORA. O TCC 3.2 define o foco do sistema na
+integridade física, com escopo simples, e esses três são monitoramento de
+serviço/aplicação. Eles cabem como extensão futura.
+
+A métrica "reachable" foi acrescentada (DECISÃO PRÓPRIA) por dois motivos:
+   1) O servidor parar de responder é a falha mais grave que existe, e ela
+      precisa de um gatilho próprio.
+   2) Sem ela não dá para calcular a disponibilidade (SLI) que o TCC 2.5
+      cita e que o dashboard mostra ("Disponibilidade geral 99,94%").
+
+Diferença entre "reachable = 0" e status "unknown":
+   - reachable = 0: o coletor está funcionando, tentou falar com o host e
+     não teve resposta. Isso é problema no servidor e vira alerta CRÍTICO.
+   - unknown: o próprio coletor parou de mandar dados. Isso é problema no
+     monitoramento e não deve ser confundido com problema no servidor.
+
+5.2 Por que "disk" é a partição mais cheia e "temp" é o maior sensor
+
+Um servidor tem várias partições e vários sensores, e o dashboard mostra
+uma barra por métrica. Ficamos com o pior valor porque é ele que indica o
+risco: um /var a 95% derruba o serviço mesmo com o / a 30%. O detalhe por
+partição ou sensor fica como extensão (DECISÃO PRÓPRIA).
+
+O TCC 5.1 fala em "condição dos discos". Isso costuma vir do S.M.A.R.T.
+(saúde física do disco), que não está disponível via SNMP padrão e exige
+um agente local. Fica como extensão; o contrato já aceita novas métricas.
+
+5.3 De onde vem cada valor (para a etapa 5)
+
+   cpu   -> HOST-RESOURCES-MIB hrProcessorLoad  1.3.6.1.2.1.25.3.3.1.2
+            (um valor por núcleo; o coletor tira a média)
+   ram   -> UCD-SNMP-MIB memTotalReal / memAvailReal
+            1.3.6.1.4.1.2021.4.5.0 e 1.3.6.1.4.1.2021.4.6.0
+            (melhor que hrStorage no Linux, porque desconta o cache)
+   disk  -> HOST-RESOURCES-MIB hrStorageTable  1.3.6.1.2.1.25.2.3.1
+            (linhas do tipo hrStorageFixedDisk; usado / tamanho)
+   temp  -> IPMI: sensores do tipo "Temperature" (TCC 2.3.2)
+            alternativa: LM-SENSORS-MIB lmTempSensorsValue
+            1.3.6.1.4.1.2021.13.16.2.1.3 (vem em milésimos de grau)
+   uptime -> HOST-RESOURCES-MIB hrSystemUptime 1.3.6.1.2.1.25.1.1.0
+
+5.4 Intervalo de coleta: 15 segundos (DECISÃO PRÓPRIA, ver o cálculo em 6.3)
+
+O TCC 2.7 (STALLINGS, 2010) defende o polling periódico, e é o modelo
+adotado. O polling usa SNMP GET em intervalo fixo. SNMP Traps ficam como
+complemento futuro.
+
+5.5 Séries temporais (gráficos)
+
+A rota de séries devolve pontos no formato { "t": data, "v": valor }. Os
+nomes são curtos porque uma série tem centenas de pontos, e "t"/"v" é o que
+os gráficos do front (Recharts) já usam hoje. Os pontos vêm agregados em
+janelas ("step") com média, máximo ou mínimo. O backend escolhe o step para
+dar cerca de 300 pontos, o suficiente para um gráfico sem pesar a tela
+(meta do TCC 4.5: dashboard em menos de 2 s).
+
+
+---------------------------------------------------------------------
+6. GATILHOS (objeto Trigger) - A REGRA
+---------------------------------------------------------------------
+
+6.1 Gatilho e alerta são coisas diferentes
+
+No mock atual, cada linha de TRIGGERS mistura a regra ("CPU > 90% por
+5 min") com a ocorrência ("disparou há 4 min, valor 96%, Ativo"). No
+contrato, separamos as duas coisas:
+
+   GATILHO = a regra configurada. Existe sempre, mesmo sem nada errado.
+   ALERTA  = cada vez que a regra disparou: quando começou, o pior valor,
+             quando resolveu.
+
+Essa separação é necessária porque o TCC 2.6 e o TCC 5.5 pedem que a IA
+"consulte o histórico de triggers" e "correlacione eventos". Esse histórico
+são os alertas. Ela também é necessária para calcular o MTTR (TCC 2.1) e a
+precisão dos alertas (TCC 4.5).
+
+6.2 Campos da regra
+
+- metric + operator: qual métrica e o tipo de comparação (gt = maior que,
+  gte = maior ou igual, lt = menor que, lte = menor ou igual).
+
+- warning_threshold e critical_threshold: os DOIS limiares na mesma regra.
+  É o modelo do Nagios (JOSEPHSEN, 2007), em que cada verificação tem um
+  limite de aviso e um de crítico (-w e -c), e corresponde aos três níveis
+  do TCC 2.4:
+      valor abaixo do aviso      -> OK
+      passou do aviso            -> Aviso
+      passou do crítico          -> Crítico
+  Qualquer um dos dois pode ser null. A regra de "host fora do ar", por
+  exemplo, só tem nível crítico.
+
+- duration_seconds: por quanto tempo a condição precisa se manter para
+  disparar. Evita alarme por um pico de 1 segundo, que é o problema de
+  "alertas volumosos" criticado no TCC 1 (TURNBULL, 2016) e a "alert
+  fatigue" do TCC 2.6. A mesma duração vale para RESOLVER: o alerta só
+  fecha depois que o valor fica abaixo do limiar pelo mesmo tempo. Isso
+  evita que o alerta fique abrindo e fechando ("flapping").
+
+- host_id: null significa regra GLOBAL, que vale para todos os servidores.
+  Preenchido, a regra vale só para aquele host. Assim cinco regras globais
+  cobrem toda a infraestrutura, e o administrador só cria regra específica
+  quando precisa. É a "lógica de gatilhos simplificada" do TCC 3.2, em
+  contraste com a configuração trabalhosa do Nagios. Se houver regra global
+  e específica para a mesma métrica no mesmo host, vale a específica.
+
+6.3 Regras padrão (vêm cadastradas)
+
+O TCC não define valores numéricos. Estes são pontos de partida (DECISÃO
+PRÓPRIA), escolhidos para manter a classificação dos servidores do mock, e
+devem ser calibrados nos testes (TCC 4.4):
+
+   regra                 | métrica   | aviso  | crítico | duração
+   ----------------------+-----------+--------+---------+--------
+   CPU elevada           | cpu  >    |  80 %  |  90 %   | 60 s
+   Memória elevada       | ram  >    |  80 %  |  90 %   | 60 s
+   Disco quase cheio     | disk >    |  85 %  |  95 %   | 60 s
+   Temperatura elevada   | temp >    |  65 °C |  75 °C  | 60 s
+   Host inalcançável     | reachable < |  -   |   1     | 45 s
+
+A duração de 60 s e a coleta a cada 15 s foram escolhidas por causa da meta
+do TCC 4.5: o alerta deve aparecer no dashboard em menos de 90 segundos.
+No pior caso:
+      até 15 s para a próxima coleta perceber o problema
+    + 60 s de duração exigida pelo gatilho
+    + até 10 s para o dashboard atualizar (ele consulta a API a cada 10 s)
+    = 85 s, abaixo dos 90 s.
+Se alguém aumentar a duração de uma regra, o painel deve avisar que ela
+deixa de cumprir essa meta.
+
+
+---------------------------------------------------------------------
+7. ALERTAS (objeto Alert) - A OCORRÊNCIA
+---------------------------------------------------------------------
+
+Um alerta é aberto quando a regra dispara e fechado quando a condição some.
+Se um aviso piora para crítico, é o MESMO alerta que muda de severidade.
+Não abrimos um segundo alerta, para não duplicar notificações (de novo, a
+"alert fatigue" do TCC 2.6).
+
+Campos e por que existem:
+
+- severity / peak_severity: severidade atual e a pior que o alerta já
+  atingiu. Um alerta que foi crítico e voltou para aviso continua
+  registrado como "chegou a crítico", o que importa nos relatórios.
+
+- value_first / value_peak / value_last: valor no disparo, pior valor e
+  valor atual. A IA usa esses números para explicar o que aconteceu.
+
+- first_breach_at: primeira leitura que passou do limiar.
+  started_at: momento do disparo (first_breach_at + duração).
+  resolved_at: momento em que fechou.
+  Com essas três datas dá para medir duas metas do TCC 4.5:
+     * tempo de detecção: o script de teste anota quando injetou a falha e
+       compara com started_at;
+     * MTTR (TCC 2.1, LIGUS, 2012): resolved_at - started_at.
+
+- acknowledged_at / acknowledged_by: alguém da equipe "reconheceu" o
+  alerta. Isso mostra que o problema está sendo tratado e permite medir o
+  tempo até a equipe reagir.
+
+- validation: true_positive, false_positive ou vazio. Durante os testes,
+  vocês marcam cada alerta como verdadeiro ou falso. A precisão é
+      verdadeiros / (verdadeiros + falsos)
+  e a meta do TCC 4.5 é acima de 90%. Sem esse campo, essa métrica teria
+  que ser calculada à mão.
+
+- trigger_name: cópia do nome da regra no momento do disparo. Se a regra
+  for renomeada ou apagada depois, o histórico continua legível.
+
+
+---------------------------------------------------------------------
+8. VISÃO GERAL, RELATÓRIOS E SAÚDE DO SISTEMA
+---------------------------------------------------------------------
+
+GET /overview entrega de uma vez os números da tela "Visão Geral", que hoje
+estão fixos no código:
+   - disponibilidade: % de coletas com reachable = 1 na janela. É o SLI do
+     TCC 2.5, mostrado junto com o SLO de 99,9% (BEYER et al., 2016);
+   - hosts por status;
+   - alertas ativos por severidade;
+   - MTTR médio dos alertas resolvidos na janela;
+   - os 10 alertas mais recentes.
+
+Relatórios (TCC 5.5): POST /reports só PEDE o relatório e responde na hora
+com status "pending". A IA pode levar vários segundos para escrever o
+texto, então o front consulta GET /reports/{id} até o status virar "ready".
+O conteúdo vem em Markdown, que o front transforma em texto formatado. Os
+tipos (availability, incidents, performance, audit) são os mesmos do
+formulário atual, e o tipo "audit" serve para o comparativo com o Zabbix
+do TCC 4.5.
+
+GET /health mostra se o próprio SMI está no ar (API, bancos e quando chegou
+a última coleta). Ele serve para medir a meta de 99% de disponibilidade
+do serviço de monitoramento (TCC 4.5), que é diferente da disponibilidade
+dos servidores monitorados.
+
+
+---------------------------------------------------------------------
+9. ROTAS
+---------------------------------------------------------------------
+
+Prefixo: http://localhost:8000/api/v1
+
+   método  rota                          para que serve
+   ------  ----------------------------  ------------------------------------------
+   GET     /health                       saúde do próprio SMI
+   GET     /overview?range=24h           indicadores da Visão Geral
+
+   GET     /servers                      lista com os últimos valores
+   POST    /servers                      cadastra servidor
+   GET     /servers/{host_id}            detalhe
+   PATCH   /servers/{host_id}            altera dados
+   DELETE  /servers/{host_id}            remove do monitoramento
+   GET     /servers/{host_id}/metrics    séries (?metric=cpu,temp&range=24h)
+
+   GET     /triggers                     lista regras (?host_id=&metric=)
+   POST    /triggers                     cria regra
+   GET     /triggers/{id}                detalhe
+   PATCH   /triggers/{id}                altera limiares/duração, ativa/desativa
+   DELETE  /triggers/{id}                remove (os alertas ficam no histórico)
+
+   GET     /alerts                       histórico (?status=active&host_id=...)
+   GET     /alerts/{id}                  detalhe
+   PATCH   /alerts/{id}                  reconhecer / marcar verdadeiro ou falso
+
+   GET     /reports                      lista
+   POST    /reports                      pede geração (responde 202, assíncrono)
+   GET     /reports/{id}                 relatório completo
+
+   POST    /ingest/metrics               recebe leituras dos coletores (exige token)
+   POST    /assistant/messages           chat com a IA (etapa 4)
+
+Critérios usados:
+- Rotas em inglês e no plural, que é o padrão REST. As URLs do front
+  continuam em português (/servidores, /gatilhos); são coisas separadas.
+- As métricas ficam "dentro" do servidor (/servers/{id}/metrics) porque
+  sempre pertencem a um host. O gráfico comparativo de CPU da tela Métricas
+  faz uma chamada por host.
+- PATCH em vez de PUT: só os campos enviados mudam.
+- Filtros por parâmetro na URL (?status=active), e paginação de alertas com
+  limit/offset, porque o histórico cresce sem parar.
+- Só a ingestão exige autenticação (token no cabeçalho X-Ingest-Token),
+  para ninguém injetar leituras falsas. Login de usuário não aparece no TCC
+  e ficou fora do protótipo (DECISÃO PRÓPRIA, mencionar como limitação).
+
+
+---------------------------------------------------------------------
+10. FERRAMENTAS DO SERVIDOR MCP (prévia da etapa 4)
+---------------------------------------------------------------------
+
+O TCC 2.6 diz que a IA usa o MCP "para consultar o histórico de triggers e
+métricas de hardware". O servidor MCP não acessa os bancos diretamente: ele
+chama a mesma API acima, então a IA vê exatamente o que o dashboard vê.
+Ferramentas previstas:
+
+   list_servers()                          -> GET /servers
+   get_server(host_id)                     -> GET /servers/{id}
+   get_metrics(host_id, metric, range)     -> GET /servers/{id}/metrics
+   list_alerts(status, host_id, from, to)  -> GET /alerts
+   get_trigger_rules(host_id)              -> GET /triggers
+   get_overview(range)                     -> GET /overview
+   create_report(type, range, host_ids)    -> POST /reports
+
+Os nomes que o chat atual mostra (mcp.triggers.history etc.) vão passar a
+ser os nomes reais dessas ferramentas, vindos de tool_calls na resposta.
+
+
+---------------------------------------------------------------------
+11. O QUE MUDA EM RELAÇÃO AO mockData.js ATUAL
+---------------------------------------------------------------------
+
+   mock atual                        | contrato
+   ----------------------------------+---------------------------------------
+   ip                                | address
+   uptime: "47d 06h"                 | uptime_seconds: 4082400
+   cpu: 34, ram: 52 ... soltos        | metrics.cpu.value, metrics.ram.value ...
+   TRIGGERS (regra + ocorrência)     | /triggers (regra) + /alerts (ocorrência)
+   severity "ok" em trigger resolvido| alerta com status "resolved"
+   last: "há 4 min"                  | started_at (data; front formata)
+   status "Ativo" / "Resolvido"      | status "active" / "resolved"
+   value: "96%"                      | value_last: 96 + unit: "percent"
+   REPORTS generatedAt (texto)       | created_at / completed_at (datas)
+   tipos em português                | availability, incidents, performance, audit
+   série { t: "05h", v }             | { t: data ISO, v }
+   KPIs fixos no Dashboard           | GET /overview
+   (não existia)                     | status "unknown", métrica reachable,
+                                     |   validation e acknowledged no alerta
+
+Na etapa 3 o front passa a ler a API. Antes disso, dá para converter o
+mockData.js para este formato, e assim a troca vira só "buscar da API em
+vez de importar o arquivo".
+
+
+---------------------------------------------------------------------
+12. PONTOS PARA VALIDAR COM O ORIENTADOR
+---------------------------------------------------------------------
+
+1. Adicionar "unknown" como quarto estado do host (o TCC fala em três).
+2. Adicionar a métrica "reachable" (disponibilidade do host).
+3. Usar SQLite junto com o InfluxDB.
+4. Deixar de fora os gatilhos de serviço (SSH, backup, I/O) por causa do
+   foco em integridade física.
+5. Os limiares padrão e a duração de 60 s (o TCC não traz números).
+6. Login de usuário fora do escopo do protótipo.
+
+Se algum desses pontos entrar na monografia, vale citar no capítulo de
+metodologia (TCC 4.2/4.3) como decisão de projeto.

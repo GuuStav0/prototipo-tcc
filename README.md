@@ -1,22 +1,52 @@
-<<<<<<< HEAD
-# TCC-Prototipo
-=======
-# React + Vite
+# SMI · Sistema de Monitoramento de Integridade para Servidores
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Protótipo do Trabalho de Conclusão de Curso de Tecnologia em Análise e Desenvolvimento de Sistemas da FATEC Presidente Prudente (2026).
 
-Currently, two official plugins are available:
+**Autores:** Luiz Gustavo de Souza Sá e Paulo Eduardo Pelosi Braz Silva
+**Orientador:** Prof. Dr. Rodrigo Vilela
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+O SMI monitora a integridade física de servidores (CPU, memória, disco e temperatura) usando dados coletados via SNMP/IPMI. Um motor de gatilhos classifica cada host em **OK**, **Aviso** ou **Crítico**, e um assistente de IA integrado via **Model Context Protocol (MCP)** correlaciona alertas, gera relatórios e responde perguntas em linguagem natural.
 
-## React Compiler
+## Estado atual
 
-The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
+Hoje o repositório contém apenas o **front-end** (dashboard). Os dados vêm de `src/data/mockData.js`, e o assistente de IA é simulado em `src/utils/chatAssistant.js`.
 
-Note: This will impact Vite dev & build performances.
+| Camada | Status |
+| --- | --- |
+| Dashboard (React) | ✅ protótipo com dados simulados |
+| Backend REST + motor de gatilhos | ⏳ a fazer |
+| Armazenamento (InfluxDB) | ⏳ a fazer |
+| Servidor MCP + IA | ⏳ a fazer |
+| Coletor SNMP/IPMI | ⏳ a fazer |
 
-## Expanding the ESLint configuration
+## Stack do front-end
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
->>>>>>> d053c58 (Estruturação de Páginas)
+React 18, Vite, React Router, Recharts e lucide-react.
+
+## Como rodar
+
+Requer Node.js 20.19 ou superior.
+
+```bash
+npm install
+npm run dev      # servidor de desenvolvimento
+npm run build    # build de produção em dist/
+npm run lint     # ESLint
+```
+
+## Contrato da API
+
+O formato dos dados e as rotas REST estão em [`docs/contrato/openapi.yaml`](docs/contrato/openapi.yaml). As decisões estão explicadas em [`docs/contrato/explicacao-contrato.txt`](docs/contrato/explicacao-contrato.txt).
+
+## Estrutura
+
+```
+docs/contrato/    # contrato da API (OpenAPI) e explicação das decisões
+src/
+├── components/   # componentes reutilizáveis (KpiCard, Led, MetricBar, ChatPanel, gráficos…)
+├── config/       # navegação (rotas da barra lateral e da barra superior)
+├── data/         # dados simulados (servidores, gatilhos, relatórios, séries)
+├── layouts/      # DashboardLayout: barra lateral, barra superior e chat fixos
+├── pages/        # Dashboard, Servidores, Gatilhos, Métricas, Topologia, Relatórios
+└── utils/        # assistente de IA simulado
+```

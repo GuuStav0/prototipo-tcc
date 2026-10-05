@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { TRIGGERS, STATUS } from "../../data/mockData";
 import TriggerTable from "../../components/TriggerTable/TriggerTable";
 

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, TerminalSquare } from "lucide-react";
 import { SUGGESTIONS, buildAnswer } from "../../utils/chatAssistant";
 import "./ChatPanel.css";

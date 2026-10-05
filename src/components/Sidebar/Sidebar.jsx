@@ -1,4 +1,3 @@
-import React from "react";
 import { NavLink } from "react-router-dom";
 import { Activity } from "lucide-react";
 import { NAV } from "../../config/navigation";

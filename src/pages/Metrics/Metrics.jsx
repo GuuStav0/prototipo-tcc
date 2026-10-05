@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { SERVERS, STATUS, METRIC_META, seriesFor } from "../../data/mockData";
 import MetricBar from "../../components/MetricBar/MetricBar";

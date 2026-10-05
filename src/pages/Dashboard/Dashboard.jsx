@@ -1,4 +1,3 @@
-import React from "react";
 import { Link } from "react-router-dom";
 import { Gauge, Server, AlertTriangle, Clock, ChevronRight } from "lucide-react";
 import { SERVERS, TRIGGERS, STATUS, METRIC_META, seriesFor } from "../../data/mockData";

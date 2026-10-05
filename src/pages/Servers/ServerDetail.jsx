@@ -1,4 +1,3 @@
-import React from "react";
 import { useParams, useNavigate, Navigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { SERVERS, TRIGGERS, METRIC_META, seriesFor } from "../../data/mockData";
