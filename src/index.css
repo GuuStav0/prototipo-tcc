@@ -126,3 +126,7 @@ body { margin: 0; }
   .smi-servergrid-mini { grid-template-columns: repeat(2, 1fr); }
   .smi-metricrow { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* textos monoespaçados secundários */
+.smi-alertrow .smi-mono { font-size: 11.5px; }
+.smi-detailhead .smi-mono { font-size: 12px; }

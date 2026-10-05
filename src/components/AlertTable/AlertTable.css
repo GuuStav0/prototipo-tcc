@@ -1,0 +1,11 @@
+.smi-row-dim td { opacity: 0.72; }
+.smi-cell-sub { font-size: 10.5px; margin-top: 2px; }
+.smi-link-plain { color: var(--text); text-decoration: none; }
+.smi-link-plain:hover { color: var(--accent); }
+
+.smi-alert-actions { display: flex; gap: 5px; align-items: center; }
+.smi-alert-actions .smi-chip { padding: 4px 9px; font-size: 11px; }
+.smi-chip-icon { padding: 4px 7px !important; }
+.smi-chip-ok { color: #6EE7B7; border-color: #2c6a4f; background: #16311f; }
+.smi-chip-bad { color: #FCA5AB; border-color: #6a2c33; background: #3a1a1c; }
+.smi-chip:disabled { opacity: 0.5; cursor: wait; }

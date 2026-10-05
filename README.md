@@ -9,16 +9,15 @@ O SMI monitora a integridade física de servidores (CPU, memória, disco e tempe
 
 ## Estado atual
 
-O front-end ainda usa dados simulados (`src/data/mockData.js`), e o assistente de IA é simulado em `src/utils/chatAssistant.js`. O backend já funciona com um coletor simulado; veja [`backend/README.md`](backend/README.md).
+O dashboard lê todos os dados da API, que por enquanto recebe as leituras de um coletor simulado. O assistente de IA ainda é simulado (`src/utils/chatAssistant.js`), mas suas respostas já usam os dados reais.
 
 | Camada | Status |
 | --- | --- |
-| Dashboard (React) | ✅ protótipo com dados simulados |
+| Dashboard (React) | ✅ ligado à API, com atualização a cada 10 s |
 | Backend REST + motor de gatilhos | ✅ pronto, com coletor simulado |
 | Armazenamento (InfluxDB) | ✅ InfluxDB 2.x ou SQLite (desenvolvimento) |
-| Front-end ligado à API | ⏳ a fazer |
-| Servidor MCP + IA | ⏳ a fazer |
-| Coletor SNMP/IPMI | ⏳ a fazer |
+| Servidor MCP + IA | ⏳ a fazer (etapa 4) |
+| Coletor SNMP/IPMI | ⏳ a fazer (etapa 5) |
 
 ## Stack do front-end
 
@@ -26,11 +25,27 @@ React 18, Vite, React Router, Recharts e lucide-react.
 
 ## Como rodar
 
-Requer Node.js 20.19 ou superior.
+Requer Node.js 20.19 ou superior e Python 3.12 ou superior. A instalação do backend é feita uma vez, conforme o [`backend/README.md`](backend/README.md).
+
+Use três terminais, todos abertos na pasta do projeto:
+
+```powershell
+# 1) API (http://127.0.0.1:8000)
+cd backend; .venv\Scripts\python -m uvicorn app.main:app --reload
+
+# 2) coletor simulado (gera 24 h de histórico e continua coletando a cada 15 s)
+cd backend; .venv\Scripts\python simulator\simulate.py --backfill 24h
+
+# 3) dashboard (http://localhost:5173)
+npm install
+npm run dev
+```
+
+Em desenvolvimento, o Vite repassa as chamadas a `/api` para `http://127.0.0.1:8000` (`vite.config.js`). Para usar outro endereço, defina `SMI_API_TARGET` ao rodar o Vite, ou `VITE_API_URL` para o front chamar a API direto.
+
+Outros comandos do front-end:
 
 ```bash
-npm install
-npm run dev      # servidor de desenvolvimento
 npm run build    # build de produção em dist/
 npm run lint     # ESLint
 ```
@@ -45,10 +60,12 @@ O formato dos dados e as rotas REST estão em [`docs/contrato/openapi.yaml`](doc
 backend/          # API REST, motor de gatilhos e coletor simulado (Python)
 docs/contrato/    # contrato da API (OpenAPI) e explicação das decisões
 src/
-├── components/   # componentes reutilizáveis (KpiCard, Led, MetricBar, ChatPanel, gráficos…)
-├── config/       # navegação (rotas da barra lateral e da barra superior)
-├── data/         # dados simulados (servidores, gatilhos, relatórios, séries)
+├── api/          # cliente HTTP da API (client.js)
+├── components/   # componentes reutilizáveis (KpiCard, Led, MetricBar, AlertTable, ChatPanel, gráficos…)
+├── config/       # navegação, rótulos de estados e métricas
+├── context/      # dados compartilhados pelo layout (Visão Geral atualizada a cada 10 s)
+├── hooks/        # useApi: busca dados da API com atualização automática
 ├── layouts/      # DashboardLayout: barra lateral, barra superior e chat fixos
 ├── pages/        # Dashboard, Servidores, Gatilhos, Métricas, Topologia, Relatórios
-└── utils/        # assistente de IA simulado
+└── utils/        # formatação, regras de gatilho e assistente de IA simulado
 ```

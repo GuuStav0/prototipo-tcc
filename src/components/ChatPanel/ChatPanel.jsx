@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Bot, X, Send, TerminalSquare } from "lucide-react";
+import { api } from "../../api/client";
 import { SUGGESTIONS, buildAnswer } from "../../utils/chatAssistant";
 import "./ChatPanel.css";
 
@@ -7,7 +8,7 @@ export default function ChatPanel({ open, onClose }) {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      text: "Olá! Sou o assistente de infraestrutura, conectado via MCP aos dados de triggers e métricas do sistema. Posso analisar alertas, correlacionar históricos e gerar relatórios. Como posso ajudar?",
+      text: "Olá! Sou o assistente de infraestrutura. Por enquanto minhas respostas são simuladas, mas usam os dados reais coletados pelo SMI. Na etapa 4 passo a ser uma IA conectada via MCP. Como posso ajudar?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -18,17 +19,23 @@ export default function ChatPanel({ open, onClose }) {
     endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, typing]);
 
-  function send(text) {
+  async function send(text) {
     const t = (text ?? input).trim();
-    if (!t) return;
+    if (!t || typing) return;
     setMessages((m) => [...m, { role: "user", text: t }]);
     setInput("");
     setTyping(true);
-    setTimeout(() => {
-      const { tool, text: answer } = buildAnswer(t);
-      setMessages((m) => [...m, { role: "assistant", tool, text: answer }]);
-      setTyping(false);
-    }, 950);
+    let reply;
+    try {
+      const [servers, overview, alerts, rules] = await Promise.all([
+        api.servers(), api.overview(), api.alerts({ status: "active", limit: 100 }), api.triggers(),
+      ]);
+      reply = buildAnswer(t, { servers: servers.items, overview, alerts: alerts.items, rules: rules.items });
+    } catch (err) {
+      reply = { tool: null, text: `Não consegui consultar os dados: ${err.message}` };
+    }
+    setMessages((m) => [...m, { role: "assistant", ...reply }]);
+    setTyping(false);
   }
 
   return (
@@ -40,7 +47,7 @@ export default function ChatPanel({ open, onClose }) {
             <div className="smi-chat-avatar"><Bot size={16} /></div>
             <div>
               <div style={{ fontWeight: 600, fontSize: 13.5 }}>Assistente de Infraestrutura</div>
-              <div className="smi-chat-status"><span className="smi-dot-live" /> Conectado via MCP</div>
+              <div className="smi-chat-status"><span className="smi-dot-live" /> Simulado com dados reais · MCP na etapa 4</div>
             </div>
           </div>
           <button className="smi-icon-btn" onClick={onClose}><X size={16} /></button>

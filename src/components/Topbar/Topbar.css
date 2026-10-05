@@ -26,3 +26,8 @@
   align-items: center;
   justify-content: center;
 }
+
+.smi-topbar-updated { font-size: 11px; margin-right: 4px; }
+@media (max-width: 700px) {
+  .smi-topbar-updated { display: none; }
+}

@@ -1,13 +1,13 @@
-import { STATUS } from "../../data/mockData";
+import { STATUS } from "../../config/status";
 import Led from "../Led/Led";
 import "./StatusBadge.css";
 
-export default function StatusBadge({ status }) {
-  const s = STATUS[status];
+export default function StatusBadge({ status, label }) {
+  const s = STATUS[status] ?? STATUS.unknown;
   return (
     <span className="smi-badge" style={{ color: s.color, borderColor: s.color + "55", background: s.color + "14" }}>
       <Led status={status} size={7} />
-      {s.label}
+      {label ?? s.label}
     </span>
   );
 }

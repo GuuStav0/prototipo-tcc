@@ -1,11 +1,12 @@
 import { NavLink } from "react-router-dom";
 import { Activity } from "lucide-react";
 import { NAV } from "../../config/navigation";
-import { TRIGGERS } from "../../data/mockData";
+import { useLive } from "../../context/live";
 import "./Sidebar.css";
 
 export default function Sidebar() {
-  const activeAlerts = TRIGGERS.filter((t) => t.status === "Ativo").length;
+  const { overview } = useLive();
+  const activeAlerts = overview ? overview.alerts_active.warning + overview.alerts_active.critical : 0;
 
   return (
     <nav className="smi-sidebar">
