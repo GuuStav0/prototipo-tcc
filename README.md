@@ -9,13 +9,14 @@ O SMI monitora a integridade física de servidores (CPU, memória, disco e tempe
 
 ## Estado atual
 
-Hoje o repositório contém apenas o **front-end** (dashboard). Os dados vêm de `src/data/mockData.js`, e o assistente de IA é simulado em `src/utils/chatAssistant.js`.
+O front-end ainda usa dados simulados (`src/data/mockData.js`), e o assistente de IA é simulado em `src/utils/chatAssistant.js`. O backend já funciona com um coletor simulado; veja [`backend/README.md`](backend/README.md).
 
 | Camada | Status |
 | --- | --- |
 | Dashboard (React) | ✅ protótipo com dados simulados |
-| Backend REST + motor de gatilhos | ⏳ a fazer |
-| Armazenamento (InfluxDB) | ⏳ a fazer |
+| Backend REST + motor de gatilhos | ✅ pronto, com coletor simulado |
+| Armazenamento (InfluxDB) | ✅ InfluxDB 2.x ou SQLite (desenvolvimento) |
+| Front-end ligado à API | ⏳ a fazer |
 | Servidor MCP + IA | ⏳ a fazer |
 | Coletor SNMP/IPMI | ⏳ a fazer |
 
@@ -41,6 +42,7 @@ O formato dos dados e as rotas REST estão em [`docs/contrato/openapi.yaml`](doc
 ## Estrutura
 
 ```
+backend/          # API REST, motor de gatilhos e coletor simulado (Python)
 docs/contrato/    # contrato da API (OpenAPI) e explicação das decisões
 src/
 ├── components/   # componentes reutilizáveis (KpiCard, Led, MetricBar, ChatPanel, gráficos…)

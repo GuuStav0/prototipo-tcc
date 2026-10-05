@@ -134,7 +134,9 @@ paths:
       summary: Série temporal de uma ou mais métricas do servidor
       description: |
         Os pontos são agregados em janelas de `step` segundos. Se `step` não
-        for informado, o backend escolhe um valor que gere cerca de 300 pontos.
+        for informado, o backend escolhe a menor janela "redonda" (15 s, 30 s,
+        1 min, 2 min, 5 min, 10 min, 15 min, 30 min, 1 h...) que gere no máximo
+        cerca de 300 pontos. Ex.: 24h -> 300 s; 7d -> 3600 s.
       parameters:
         - $ref: "#/components/parameters/HostId"
         - name: metric
@@ -412,6 +414,11 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ChatResponse" }
+        "501":
+          description: Ainda não implementado (até a etapa 4)
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
 
 components:
   securitySchemes:
@@ -756,7 +763,12 @@ components:
             required: [host_id, metric, value, collected_at]
             properties:
               host_id: { type: string }
-              metric: { $ref: "#/components/schemas/MetricKey" }
+              metric:
+                type: string
+                enum: [cpu, ram, disk, temp, reachable, uptime]
+                description: |
+                  As métricas monitoradas, mais "uptime" (segundos desde o boot),
+                  que só atualiza Server.uptime_seconds e não vira série nem gatilho.
               value: { type: number }
               collected_at: { type: string, format: date-time }
 
@@ -793,7 +805,10 @@ components:
           type: object
           properties:
             database: { type: string, enum: [ok, down] }
-            influxdb: { type: string, enum: [ok, down] }
+            influxdb:
+              type: string
+              enum: [ok, down, disabled]
+              description: disabled = séries guardadas no SQLite (SMI_METRICS_BACKEND=sqlite)
             last_ingest_at: { type: [string, "null"], format: date-time }
 
     Error:
@@ -804,3 +819,11 @@ components:
           properties:
             code: { type: string, example: server_not_found }
             message: { type: string, example: Servidor 'srv-x' não encontrado }
+            details:
+              type: array
+              description: Só em erros de validação (422), um item por campo inválido
+              items:
+                type: object
+                properties:
+                  field: { type: string }
+                  message: { type: string }

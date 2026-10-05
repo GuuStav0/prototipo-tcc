@@ -195,8 +195,14 @@ A rota de séries devolve pontos no formato { "t": data, "v": valor }. Os
 nomes são curtos porque uma série tem centenas de pontos, e "t"/"v" é o que
 os gráficos do front (Recharts) já usam hoje. Os pontos vêm agregados em
 janelas ("step") com média, máximo ou mínimo. O backend escolhe o step para
-dar cerca de 300 pontos, o suficiente para um gráfico sem pesar a tela
-(meta do TCC 4.5: dashboard em menos de 2 s).
+dar no máximo cerca de 300 pontos, o suficiente para um gráfico sem pesar a
+tela (meta do TCC 4.5: dashboard em menos de 2 s).
+
+O step é sempre um valor "redondo" (15 s, 1 min, 5 min, 1 h...). Isso foi
+ajustado na etapa 2. Com o cálculo exato (24 h / 300 = 288 s) e leituras a
+cada 300 s, uma janela em cada 2 horas ficava sem nenhuma leitura e o
+gráfico mostrava buracos falsos. Com janelas redondas isso não acontece, e
+os horários do eixo também ficam mais legíveis (16:05, 16:10...).
 
 
 ---------------------------------------------------------------------
