@@ -29,6 +29,8 @@ class Settings(BaseSettings):
     # Coleta a cada 15 s; sem leitura há 3 ciclos o host fica "unknown"
     poll_interval_seconds: int = 15
     stale_after_seconds: int = 45
+    # servidor real sem enviar nada por esse tempo -> o watchdog registra reachable=0 (etapa 5)
+    heartbeat_timeout_seconds: int = 30
 
     # SLO de disponibilidade exibido no dashboard (TCC 2.5)
     slo_percent: float = 99.9
@@ -49,6 +51,8 @@ class Settings(BaseSettings):
 
     # Endereço da API que o servidor MCP consulta (o próprio backend)
     mcp_api_url: str = "http://127.0.0.1:8000/api/v1"
+    # Endereço da API para onde o coletor SNMP envia as leituras (etapa 5)
+    collector_api_url: str = "http://127.0.0.1:8000/api/v1"
 
 
 @lru_cache

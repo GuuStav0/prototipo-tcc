@@ -49,7 +49,10 @@ def build_servers(db: Session, servers: list[Server], now: datetime | None = Non
     for s in servers:
         host_readings = readings.get(s.id, {})
         host_alerts = alerts.get(s.id, [])
-        last_seen = max((r.collected_at for r in host_readings.values()), default=None)
+        # último contato real (as leituras do watchdog não contam: são o backend avisando que o
+        # servidor sumiu); bancos antigos sem a coluna preenchida usam o último valor recebido
+        last_seen = s.last_report_at or max(
+            (r.collected_at for r in host_readings.values() if r.source != "watchdog"), default=None)
         fresh = s.enabled and last_seen is not None and last_seen >= stale_limit
 
         metrics = {}
@@ -58,7 +61,7 @@ def build_servers(db: Session, servers: list[Server], now: datetime | None = Non
             worst = _worst([a for a in host_alerts if a.metric == m])
             if worst:
                 status = worst
-            elif lr is not None and lr.collected_at >= stale_limit and s.enabled:
+            elif lr is not None and lr.collected_at >= stale_limit and s.enabled and lr.source != "watchdog":
                 status = "ok"
             else:
                 status = "unknown"
@@ -69,7 +72,7 @@ def build_servers(db: Session, servers: list[Server], now: datetime | None = Non
 
         result.append(schemas.ServerOut(
             id=s.id, name=s.name, address=s.address, role=s.role, os=s.os,
-            location=s.location, enabled=s.enabled,
+            location=s.location, enabled=s.enabled, mode=s.mode,
             collection=schemas.Collection(
                 snmp=schemas.SnmpInfo(enabled=s.snmp_enabled, version=s.snmp_version, port=s.snmp_port),
                 ipmi=schemas.IpmiInfo(enabled=s.ipmi_enabled, address=s.ipmi_address),

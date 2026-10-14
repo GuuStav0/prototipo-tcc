@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from .. import schemas
 from ..database import as_utc, get_db, utcnow
-from ..domain import METRICS, RANGES_SECONDS, HostStatus
+from ..domain import METRICS, RANGES_SECONDS, HostStatus, ServerMode
 from ..errors import ApiError, not_found
 from ..metrics_store import MetricsStore, get_metrics_store
 from ..models import Alert, Server
@@ -23,7 +23,7 @@ def _get_server(db: Session, host_id: str) -> Server:
 
 
 # campos que não aceitam null; os demais (location, credenciais) podem ser apagados com null
-_REQUIRED = {"name", "address", "role", "os", "enabled",
+_REQUIRED = {"name", "address", "role", "os", "enabled", "mode",
              "snmp_enabled", "snmp_version", "snmp_port", "ipmi_enabled", "agent_enabled"}
 
 
@@ -42,8 +42,12 @@ def _apply(server: Server, data: schemas.ServerUpdate) -> None:
 
 
 @router.get("", response_model=schemas.ServerList)
-def list_servers(status: HostStatus | None = None, db: Session = Depends(get_db)):
-    items = build_servers(db, list(db.scalars(select(Server).order_by(Server.id))))
+def list_servers(status: HostStatus | None = None, mode: ServerMode | None = None,
+                 db: Session = Depends(get_db)):
+    q = select(Server).order_by(Server.id)
+    if mode:
+        q = q.where(Server.mode == mode)
+    items = build_servers(db, list(db.scalars(q)))
     if status:
         items = [s for s in items if s.status == status]
     return {"items": items}
@@ -53,7 +57,7 @@ def list_servers(status: HostStatus | None = None, db: Session = Depends(get_db)
 def create_server(data: schemas.ServerCreate, db: Session = Depends(get_db)):
     if db.get(Server, data.id):
         raise ApiError(409, "server_exists", f"já existe um servidor com id '{data.id}'")
-    server = Server(id=data.id, name=data.name, address=data.address, role="", os="")
+    server = Server(id=data.id, name=data.name, address=data.address, role="", os="", mode="real")
     _apply(server, data)
     db.add(server)
     db.commit()

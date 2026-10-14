@@ -7,6 +7,12 @@ Severity = Literal["warning", "critical"]
 HostStatus = Literal["ok", "warning", "critical", "unknown"]
 Operator = Literal["gt", "gte", "lt", "lte"]
 Source = Literal["snmp", "ipmi", "agent", "simulator"]
+# leituras geradas pelo próprio backend quando um servidor real para de enviar dados
+InternalSource = Literal["watchdog"]
+ServerMode = Literal["simulated", "real"]
+
+# qual fonte vale para qual modo de servidor
+SOURCES_BY_MODE = {"simulated": {"simulator"}, "real": {"agent", "snmp", "ipmi"}}
 
 # unidade e faixa aceita na ingestão (valores fora disso são rejeitados)
 METRICS: dict[str, dict] = {

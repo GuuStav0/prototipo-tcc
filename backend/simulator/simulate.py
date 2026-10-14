@@ -1,7 +1,8 @@
 """Coletor simulado do SMI.
 
-Gera leituras de CPU, memória, disco, temperatura, alcance e uptime para os servidores
-cadastrados e envia para POST /ingest/metrics, como o coletor SNMP real fará na etapa 5.
+Gera leituras de CPU, memória, disco, temperatura, alcance e uptime para os servidores em
+modo "simulado" e envia para POST /ingest/metrics. Servidores em modo "real" são ignorados:
+os dados deles vêm do agente (agent/smi_agent.py) ou do coletor SNMP (collector/snmp_poller.py).
 
 Uso:
   python simulator/simulate.py                    # coleta ao vivo a cada 15 s
@@ -106,9 +107,10 @@ class Simulator:
 
     # ------------------------------------------------------------ API
     def hosts(self) -> list[str]:
-        r = self.client.get("/servers")
+        """Só os servidores em modo simulado: os reais recebem dados do agente ou do SNMP."""
+        r = self.client.get("/servers", params={"mode": "simulated"})
         r.raise_for_status()
-        return [s["id"] for s in r.json()["items"] if s["enabled"]]
+        return [s["id"] for s in r.json()["items"] if s["enabled"] and s.get("mode", "simulated") == "simulated"]
 
     def send(self, samples: list[dict]) -> None:
         for i in range(0, len(samples), 5000):
@@ -199,6 +201,17 @@ class Simulator:
             time.sleep(max(0.0, interval - (time.monotonic() - started)))
 
 
+def default_token() -> str:
+    """O mesmo token da API (lido do backend/.env), para não precisar repetir na linha de comando."""
+    try:
+        sys.path.insert(0, str(HERE.parent))
+        from app.config import get_settings
+
+        return get_settings().ingest_token
+    except Exception:
+        return "dev-token"
+
+
 def parse_span(text: str) -> timedelta:
     units = {"h": 3600, "d": 86400, "m": 60}
     if not text or text[-1] not in units or not text[:-1].isdigit():
@@ -209,7 +222,8 @@ def parse_span(text: str) -> timedelta:
 def main() -> None:
     p = argparse.ArgumentParser(description="Coletor simulado do SMI")
     p.add_argument("--api", default="http://127.0.0.1:8000/api/v1")
-    p.add_argument("--token", default="dev-token", help="mesmo valor de SMI_INGEST_TOKEN")
+    p.add_argument("--token", default=default_token(),
+                   help="padrão: o SMI_INGEST_TOKEN do backend/.env")
     p.add_argument("--interval", type=int, default=15, help="segundos entre coletas (padrão 15)")
     p.add_argument("--backfill", type=parse_span, help="gera histórico antes de começar (ex. 24h)")
     p.add_argument("--backfill-step", type=int, default=300, help="segundos entre leituras do histórico")

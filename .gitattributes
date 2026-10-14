@@ -1,0 +1,5 @@
+# Arquivos que rodam no Linux (VPS) precisam de quebra de linha LF
+*.sh text eol=lf
+*.service text eol=lf
+backend/agent/* text eol=lf
+backend/collector/*.conf text eol=lf

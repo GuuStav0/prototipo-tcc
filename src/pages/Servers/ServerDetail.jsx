@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useParams, useNavigate, Navigate } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Navigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { api } from "../../api/client";
 import { LIVE_INTERVAL, SERIES_INTERVAL, useApi } from "../../hooks/useApi";
@@ -12,10 +12,13 @@ import MetricBar from "../../components/MetricBar/MetricBar";
 import BigChart from "../../components/charts/BigChart";
 import AlertTable from "../../components/AlertTable/AlertTable";
 import { Empty, ErrorBox, Loading } from "../../components/Feedback/Feedback";
+import ModeBadge from "../../components/ModeBadge/ModeBadge";
+import ServerManage from "./ServerManage";
 
 export default function ServerDetail() {
   const { hostId } = useParams();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const [range, setRange] = useState("24h");
 
   const server = useApi((signal) => api.server(hostId, { signal }), ["server", hostId], { interval: LIVE_INTERVAL });
@@ -49,7 +52,10 @@ export default function ServerDetail() {
             <div className="smi-muted smi-mono">{host.role} · {host.os} · {host.address}</div>
           </div>
           <div className="smi-detailhead-right">
-            <StatusBadge status={host.status} />
+            <div style={{ display: "flex", gap: 6 }}>
+              <ModeBadge mode={host.mode} />
+              <StatusBadge status={host.status} />
+            </div>
             <span className="smi-muted smi-mono">uptime {formatUptime(host.uptime_seconds)}</span>
             <span className="smi-muted smi-mono">última coleta {formatRelative(host.last_seen_at)}</span>
           </div>
@@ -57,7 +63,14 @@ export default function ServerDetail() {
         <div className="smi-metricrow">
           {CHART_METRICS.map((m) => <MetricBar key={m} metric={m} reading={host.metrics[m]} />)}
         </div>
+        {host.mode === "real" && host.last_seen_at && host.metrics.temp.value === null && (
+          <div className="smi-muted" style={{ fontSize: 11.5, marginTop: 10 }}>
+            Temperatura indisponível neste servidor (máquinas virtuais, como uma VPS, não têm sensores de hardware).
+          </div>
+        )}
       </div>
+
+      <ServerManage host={host} isNew={params.get("novo") === "1"} onChanged={server.reload} />
 
       <div className="smi-chipfilter" style={{ marginTop: 0 }}>
         {RANGES.map((r) => (

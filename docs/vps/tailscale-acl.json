@@ -1,0 +1,21 @@
+{
+  // Política de acesso da rede Tailscale do SMI (Admin console > Access controls).
+  // Libera SOMENTE o tráfego que o SMI usa; todo o resto entre os aparelhos fica bloqueado.
+  //
+  // Antes de salvar, marque os aparelhos com as tags (Machines > ... > Edit ACL tags):
+  //   PC do monitoramento -> tag:smi-pc
+  //   VPS                 -> tag:smi-vps
+  // Aparelhos com tag não expiram a chave de acesso (a VPS não cai da rede depois de 180 dias).
+
+  "tagOwners": {
+    "tag:smi-pc": ["autogroup:admin"],
+    "tag:smi-vps": ["autogroup:admin"]
+  },
+
+  "acls": [
+    // agente da VPS -> API do SMI no PC
+    { "action": "accept", "src": ["tag:smi-vps"], "dst": ["tag:smi-pc:8000"] },
+    // coletor SNMP no PC -> snmpd da VPS (opcional, só se usar a coleta SNMP)
+    { "action": "accept", "src": ["tag:smi-pc"], "dst": ["tag:smi-vps:161"] }
+  ]
+}

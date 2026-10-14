@@ -16,6 +16,8 @@ class Server(Base):
     os: Mapped[str] = mapped_column(String(120), default="")
     location: Mapped[str | None] = mapped_column(String(120), nullable=True)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    # "simulated" recebe dados só do simulador; "real", só de agente/SNMP/IPMI (etapa 5)
+    mode: Mapped[str] = mapped_column(String(10), default="real")
 
     # Credenciais ficam em texto puro no protótipo; nunca saem pela API.
     snmp_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
@@ -32,6 +34,8 @@ class Server(Base):
     agent_enabled: Mapped[bool] = mapped_column(Boolean, default=False)
 
     uptime_seconds: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    # última leitura enviada pelo próprio servidor (agente/SNMP/simulador); o watchdog não altera
+    last_report_at: Mapped[datetime | None] = mapped_column(UTCDateTime, nullable=True)
     created_at: Mapped[datetime] = mapped_column(UTCDateTime, default=utcnow)
 
 

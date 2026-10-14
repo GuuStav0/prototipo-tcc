@@ -48,6 +48,9 @@ export const api = {
 
   servers: (params, opts) => request("/servers", { params, ...opts }),
   server: (id, opts) => request(`/servers/${encodeURIComponent(id)}`, opts),
+  createServer: (body) => request("/servers", { method: "POST", body }),
+  updateServer: (id, body) => request(`/servers/${encodeURIComponent(id)}`, { method: "PATCH", body }),
+  deleteServer: (id) => request(`/servers/${encodeURIComponent(id)}`, { method: "DELETE" }),
   // metric: "cpu" ou "cpu,ram,disk,temp"
   metrics: (id, params, opts) => request(`/servers/${encodeURIComponent(id)}/metrics`, { params, ...opts }),
 

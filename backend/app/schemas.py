@@ -5,7 +5,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .domain import HostStatus, MetricKey, Operator, Severity, Source
+from .domain import HostStatus, InternalSource, MetricKey, Operator, ServerMode, Severity, Source
 
 
 class ORM(BaseModel):
@@ -17,7 +17,7 @@ class MetricReading(BaseModel):
     value: float | None = None
     unit: str
     status: HostStatus = "unknown"
-    source: Source | None = None
+    source: Source | InternalSource | None = None
     collected_at: datetime | None = None
 
 
@@ -55,6 +55,7 @@ class ServerOut(BaseModel):
     os: str
     location: str | None
     enabled: bool
+    mode: ServerMode
     collection: Collection
     status: HostStatus
     last_seen_at: datetime | None
@@ -92,6 +93,7 @@ class ServerUpdate(BaseModel):
     os: str | None = None
     location: str | None = None
     enabled: bool | None = None
+    mode: ServerMode | None = None
     snmp: SnmpInput | None = None
     ipmi: IpmiInput | None = None
     agent: AgentInput | None = None

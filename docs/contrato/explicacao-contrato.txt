@@ -506,3 +506,87 @@ vez de importar o arquivo".
 
 Se algum desses pontos entrar na monografia, vale citar no capítulo de
 metodologia (TCC 4.2/4.3) como decisão de projeto.
+
+
+---------------------------------------------------------------------
+13. SERVIDORES REAIS (etapa 5)
+---------------------------------------------------------------------
+
+13.1 Alvo real: VPS Ubuntu (Hostinger KVM 2), que hospeda dois sites em
+produção. Foi a máquina real disponível para os testes. Como não pode ser
+afetada, os componentes instalados nela foram feitos para só LER métricas,
+com limites de CPU e memória impostos pelo próprio Linux.
+
+13.2 Dois modelos de coleta, lado a lado (TCC 2.3.1 e 5.1)
+
+   AGENTE (envio / "push")                SNMP v3 (consulta / "polling")
+   - a VPS envia a cada 15 s              - o PC consulta a VPS a cada 15 s
+   - guarda leituras se o PC estiver      - nada é coletado com o PC
+     desligado e reenvia depois             desligado
+   - queda detectada pela AUSÊNCIA de     - queda detectada pela FALTA DE
+     envio (watchdog no backend)            RESPOSTA à consulta
+   - Python + psutil                      - snmpd (padrão do Linux),
+                                            HOST-RESOURCES-MIB e UCD-SNMP-MIB
+
+Os dois enviam para a mesma rota POST /ingest/metrics; o restante do
+sistema (gatilhos, painel, IA) não sabe nem precisa saber a origem. Na
+monografia, a VPS pode ser cadastrada duas vezes (uma por modelo) para
+comparar os dois.
+
+13.3 Modo por servidor (DECISÃO PRÓPRIA)
+
+Cada servidor é "simulated" ou "real". O simulador só escreve nos
+simulados; agente e SNMP só nos reais, e só pelas formas de coleta ativas
+no cadastro. A regra fica na API, não nos coletores, então o conflito é
+impossível mesmo com tudo rodando ao mesmo tempo. Os 10 servidores de
+demonstração continuam simulados, porque permitem provocar falhas sob
+demanda na apresentação (temperatura, por exemplo).
+
+13.4 Detecção de queda no modelo de envio (watchdog)
+
+Quando um servidor que só envia dados cai, ele simplesmente fica em
+silêncio. Para isso virar alerta, o backend registra reachable=0 em nome
+de qualquer servidor real que fique mais de 30 s sem enviar, e o gatilho
+"Host inalcançável" dispara pelo caminho normal. Três cuidados:
+   a) o tempo em que a própria API ficou desligada não conta (sem alerta
+      falso ao religar o PC do monitoramento);
+   b) servidor recém-cadastrado que nunca enviou nada fica "sem dados",
+      não "crítico";
+   c) a "última coleta" mostrada no painel só considera leituras enviadas
+      pelo servidor; tentativa sem resposta (timeout do SNMP) e leituras
+      do watchdog não contam como contato.
+
+13.5 Limitações (citar na monografia)
+
+- Temperatura: uma VPS é uma máquina virtual e não enxerga os sensores do
+  hardware físico do provedor. A métrica aparece como indisponível para a
+  VPS; os servidores simulados demonstram os gatilhos de temperatura.
+- IPMI (TCC 2.3.2): exige acesso à placa de gerenciamento do servidor
+  físico, que só o provedor tem. Está previsto no cadastro e no contrato,
+  mas não foi testado por falta de hardware.
+- S.M.A.R.T. (saúde física do disco): o disco da VPS é virtual.
+
+13.6 Segurança da ligação PC <-> VPS
+
+A API roda no PC, atrás do roteador de casa; a VPS chega até ela pela rede
+privada do Tailscale (WireGuard, criptografada), sem abrir portas no
+roteador nem expor a API na internet. Camadas:
+   - política de acesso do Tailscale liberando só VPS -> PC:8000 e
+     PC -> VPS:161;
+   - firewall do Windows liberando a porta 8000 só para a faixa do
+     Tailscale (100.64.0.0/10);
+   - token de ingestão forte (o padrão dev-token gera aviso no log);
+   - SNMP somente v3 com autenticação (SHA) e criptografia (AES), somente
+     leitura, escutando só no IP do Tailscale e expondo só os OIDs usados.
+
+13.7 Resultados medidos nos testes (TCC 4.5, meta < 90 s)
+
+   agente parou de enviar -> alerta "Host inalcançável"        77 s
+   agente SNMP parou de responder -> alerta                    58 s
+   PC desligado e religado -> leituras do período reenviadas,
+                              sem alerta falso                 ok
+   consulta SNMP v3 a um servidor                              ~130-170 ms
+
+Os tempos foram medidos contra um agente local e um agente SNMP simulado
+(snmpsim) com a mesma configuração da VPS; vale repetir as medições com a
+VPS real para o capítulo de resultados.

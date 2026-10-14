@@ -1,0 +1,50 @@
+# Serviço systemd do agente do SMI.
+# Todas as restrições abaixo existem para o agente NUNCA afetar os outros serviços do servidor:
+# usuário temporário sem privilégios, sistema de arquivos somente leitura, prioridade baixa
+# e limites rígidos de CPU e memória aplicados pelo próprio kernel.
+
+[Unit]
+Description=SMI - agente de monitoramento (envia metricas para o SMI)
+After=network-online.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/smi-agent/agent.env
+ExecStart=/usr/bin/python3 /opt/smi-agent/smi_agent.py
+Restart=always
+RestartSec=10
+
+# usuário criado só enquanto o serviço roda, sem senha, sem shell e sem privilégios
+DynamicUser=yes
+StateDirectory=smi-agent
+
+# nunca disputa recursos com os sites
+Nice=10
+IOSchedulingClass=idle
+CPUQuota=5%
+MemoryMax=128M
+TasksMax=8
+
+# isolamento: só lê o sistema; só grava o próprio buffer em /var/lib/smi-agent
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=read-only
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+ProtectControlGroups=yes
+ProtectClock=yes
+ProtectHostname=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=yes
+RestrictRealtime=yes
+RestrictSUIDSGID=yes
+LockPersonality=yes
+SystemCallArchitectures=native
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

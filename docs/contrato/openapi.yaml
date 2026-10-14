@@ -64,6 +64,10 @@ paths:
         - name: status
           in: query
           schema: { $ref: "#/components/schemas/HostStatus" }
+        - name: mode
+          in: query
+          description: real ou simulated (vazio = todos)
+          schema: { $ref: "#/components/schemas/ServerMode" }
       responses:
         "200":
           description: Lista de servidores
@@ -368,7 +372,11 @@ paths:
       summary: Recebe leituras dos coletores (SNMP, IPMI, agente local ou simulador)
       description: |
         Porta de entrada única dos dados. O backend grava as leituras no
-        InfluxDB e avalia os gatilhos logo em seguida.
+        InfluxDB e avalia os gatilhos logo em seguida. Cada leitura é aceita ou
+        recusada individualmente (rejected traz o motivo), por exemplo: servidor não
+        cadastrado ou desativado, fonte incompatível com o modo do servidor
+        (simulator em servidor real e vice-versa), forma de coleta desativada no
+        cadastro, valor fora da faixa ou horário no futuro.
       security:
         - IngestToken: []
       requestBody:
@@ -511,6 +519,13 @@ components:
     Source:
       type: string
       enum: [snmp, ipmi, agent, simulator]
+    ServerMode:
+      type: string
+      enum: [simulated, real]
+      description: |
+        simulated: só aceita leituras com source=simulator.
+        real: só aceita leituras de agent, snmp ou ipmi (e só das formas de coleta ativas no
+        cadastro). Assim o simulador e os coletores reais nunca se misturam.
 
     # ---------- servidor ----------
     MetricReading:
@@ -519,7 +534,12 @@ components:
         value: { type: [number, "null"], example: 96.0 }
         unit: { $ref: "#/components/schemas/MetricUnit" }
         status: { $ref: "#/components/schemas/HostStatus" }
-        source: { $ref: "#/components/schemas/Source" }
+        source:
+          type: [string, "null"]
+          enum: [snmp, ipmi, agent, simulator, watchdog, null]
+          description: |
+            watchdog = leitura registrada pelo próprio backend (reachable=0) porque um servidor
+            real ficou mais de 30 s sem enviar dados.
         collected_at: { type: [string, "null"], format: date-time }
 
     Server:
@@ -532,6 +552,7 @@ components:
         os: { type: string, example: Ubuntu 22.04 }
         location: { type: [string, "null"], example: Rack A2 }
         enabled: { type: boolean, description: "false = cadastrado, mas sem coleta" }
+        mode: { $ref: "#/components/schemas/ServerMode" }
         collection:
           type: object
           description: Como o host é coletado (credenciais nunca são devolvidas)
@@ -552,7 +573,10 @@ components:
               properties:
                 enabled: { type: boolean }
         status: { $ref: "#/components/schemas/HostStatus" }
-        last_seen_at: { type: [string, "null"], format: date-time }
+        last_seen_at:
+          type: [string, "null"]
+          format: date-time
+          description: última leitura enviada pelo próprio servidor (as do watchdog não contam)
         uptime_seconds: { type: [integer, "null"], example: 504000 }
         metrics:
           type: object
@@ -581,6 +605,9 @@ components:
         os: { type: string }
         location: { type: [string, "null"] }
         enabled: { type: boolean, default: true }
+        mode:
+          allOf: [{ $ref: "#/components/schemas/ServerMode" }]
+          description: "padrão: real (os servidores de demonstração do seed são simulated)"
         snmp:
           type: object
           properties:

@@ -3,7 +3,7 @@
 API REST, motor de gatilhos e assistente de IA do SMI, em Python + FastAPI. Implementa o contrato em [`../docs/contrato/openapi.yaml`](../docs/contrato/openapi.yaml).
 
 ```
-coletor (simulador / SNMP / IPMI / agente)
+simulador (servidores simulados)   agente na VPS (envia)   coletor SNMP (consulta a VPS)
    │  POST /api/v1/ingest/metrics
    ▼
 API ──► séries temporais: InfluxDB (ou SQLite, em desenvolvimento)
@@ -84,6 +84,28 @@ O servidor MCP é independente do backend. Para conectá-lo, por exemplo, ao Cla
 
 Ferramentas disponíveis: `get_overview`, `list_servers`, `get_server`, `get_metrics`, `list_alerts`, `get_trigger_rules` e `create_report`.
 
+## Servidores reais e simulados
+
+Cada servidor tem um **modo**:
+
+- **simulated** só aceita leituras do coletor simulado. É o caso dos 10 servidores de demonstração do seed.
+- **real** só aceita leituras do agente ou do SNMP, e só das formas de coleta ativas no cadastro.
+
+A API recusa qualquer mistura, então rodar o simulador nunca sobrescreve dados reais. O modo é trocado no painel (**Servidores → detalhe → Passar para real/simulado**), e servidores cadastrados pelo painel nascem reais.
+
+- **Agente** (`agent/smi_agent.py`): roda no servidor monitorado e **envia** CPU, memória, disco, temperatura (quando há sensor) e uptime a cada 15 s. Se a API estiver fora, guarda as leituras (até ~24 h) e reenvia depois. Instalação na VPS com `agent/install.sh`, como serviço systemd com limite de 5% de CPU e 128 MB.
+- **Coletor SNMP** (`collector/snmp_poller.py`): roda junto com a API e **consulta** por SNMP v2c/v3 os servidores reais com coleta SNMP. Para testar uma consulta sem enviar: `.venv\Scripts\python -m collector.snmp_poller --test <id>`.
+- **Watchdog** (`app/watchdog.py`): se um servidor real que já enviou dados fica mais de 30 s em silêncio (`SMI_HEARTBEAT_TIMEOUT_SECONDS`), o backend registra `reachable=0` e o gatilho "Host inalcançável" dispara. O tempo em que a própria API ficou desligada não conta, para não gerar alerta falso ao religar o PC.
+
+O passo a passo para a VPS (Tailscale, firewall, agente e SNMP) está em [`../docs/vps/GUIA-VPS.md`](../docs/vps/GUIA-VPS.md).
+
+Tempos medidos nos testes (meta da seção 4.5: menos de 90 s):
+
+| Situação | Alerta "Host inalcançável" |
+| --- | --- |
+| Agente para de enviar (VPS caiu) | 77 s |
+| Agente SNMP para de responder | 58 s |
+
 ## Testar os gatilhos (injeção de falhas)
 
 Com o simulador rodando, crie `simulator/faults.json`:
@@ -136,8 +158,13 @@ app/
 ├── reports.py         # relatórios: números do sistema + análise da IA
 ├── seed.py            # dados iniciais
 ├── assistant/         # agente de IA: provedores (Ollama/Claude), cliente MCP e laço de ferramentas
+├── ingestion.py       # entrada única das leituras (valida fonte x modo, grava, roda os gatilhos)
+├── watchdog.py        # detecção de servidor real em silêncio
+├── migrations.py      # adiciona colunas novas a bancos antigos sem perder dados
 └── routers/           # uma rota por recurso
+agent/                 # agente para servidores Linux + install.sh, uninstall.sh e serviço systemd
+collector/             # coletor SNMP + configuração do snmpd para a VPS
 smi_mcp/server.py      # servidor MCP: as ferramentas que a IA usa
-simulator/simulate.py  # coletor simulado com injeção de falhas
-tests/                 # testes do motor, da API e do assistente
+simulator/simulate.py  # coletor simulado (só para servidores em modo simulado)
+tests/                 # testes do motor, da API, do assistente, dos servidores reais e do SNMP
 ```

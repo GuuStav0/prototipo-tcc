@@ -9,6 +9,7 @@ import sys
 from sqlalchemy import select
 
 from .database import Base, SessionLocal, engine
+from .migrations import upgrade
 from .models import Server, Trigger
 
 # Os mesmos servidores do mock do front-end (src/data/mockData.js)
@@ -49,12 +50,13 @@ def seed(reset: bool = False) -> None:
     if reset:
         Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
+    upgrade(engine)
     with SessionLocal() as db:
         existing = set(db.scalars(select(Server.id)))
         for sid, role, os_, ip in SERVERS:
             if sid not in existing:
                 db.add(Server(id=sid, name=sid, address=ip, role=role, os=os_,
-                              snmp_community="public"))
+                              mode="simulated", snmp_community="public"))
         names = set(db.scalars(select(Trigger.name).where(Trigger.host_id.is_(None))))
         for t in TRIGGERS:
             if t["name"] not in names:
