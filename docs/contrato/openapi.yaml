@@ -398,11 +398,13 @@ paths:
   /assistant/messages:
     post:
       tags: [assistente]
-      summary: Envia uma mensagem ao assistente de IA (etapa 4)
+      summary: Envia uma mensagem ao assistente de IA
       description: |
-        O backend repassa a pergunta ao LLM, que consulta os dados pelas
-        ferramentas do servidor MCP. As ferramentas usadas voltam em tool_calls
-        para o chat mostrar o que foi consultado.
+        O backend repassa a pergunta ao LLM (Ollama ou Claude), que consulta os
+        dados pelas ferramentas do servidor MCP. As ferramentas usadas voltam em
+        tool_calls para o chat mostrar o que foi consultado. Envie o
+        conversation_id recebido para continuar a mesma conversa.
+        Com modelo local a resposta pode levar de 5 s a 1 min.
       requestBody:
         required: true
         content:
@@ -414,11 +416,31 @@ paths:
           content:
             application/json:
               schema: { $ref: "#/components/schemas/ChatResponse" }
-        "501":
-          description: Ainda não implementado (até a etapa 4)
+        "422": { $ref: "#/components/responses/Invalid" }
+        "502":
+          description: O modelo respondeu com erro ou recusou a pergunta (code assistant_error)
           content:
             application/json:
               schema: { $ref: "#/components/schemas/Error" }
+        "503":
+          description: |
+            IA indisponível. code: assistant_disabled (SMI_LLM_PROVIDER=none),
+            assistant_unavailable (Ollama parado, modelo não baixado ou chave inválida)
+            ou mcp_unavailable (o servidor MCP não iniciou).
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Error" }
+
+  /assistant/status:
+    get:
+      tags: [assistente]
+      summary: Provedor e modelo em uso, se estão prontos e as ferramentas do servidor MCP
+      responses:
+        "200":
+          description: Estado do assistente
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/AssistantStatus" }
 
 components:
   securitySchemes:
@@ -790,9 +812,27 @@ components:
           items:
             type: object
             properties:
-              name: { type: string, example: get_alert_history }
-              arguments: { type: object }
+              name: { type: string, example: get_server }
+              arguments: { type: object, example: { host_id: srv-app-02 } }
         created_at: { type: string, format: date-time }
+
+    AssistantStatus:
+      type: object
+      properties:
+        enabled: { type: boolean, description: "false = SMI_LLM_PROVIDER=none" }
+        provider: { type: [string, "null"], enum: [ollama, anthropic, null] }
+        model: { type: [string, "null"], example: "qwen2.5:7b" }
+        available: { type: boolean, description: o modelo está pronto para responder }
+        detail: { type: string, example: Modelo local qwen2.5:7b pronto. }
+        mcp:
+          type: object
+          properties:
+            connected: { type: boolean }
+            tools:
+              type: array
+              items: { type: string }
+              example: [get_overview, list_servers, get_server, get_metrics, list_alerts, get_trigger_rules, create_report]
+            detail: { type: string }
 
     # ---------- sistema ----------
     Health:

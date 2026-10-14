@@ -214,7 +214,3 @@ def test_report_validation(client):
     r = client.post(f"{API}/reports", json={"type": "incidents", "period_from": "2026-10-01T00:00:00Z"})
     assert r.status_code == 422
 
-
-def test_assistant_not_implemented_yet(client):
-    r = client.post(f"{API}/assistant/messages", json={"message": "oi"})
-    assert r.status_code == 501 and r.json()["error"]["code"] == "not_implemented"

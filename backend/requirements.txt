@@ -1,7 +1,10 @@
-fastapi==0.115.*
-uvicorn[standard]==0.32.*
+fastapi==0.143.*
+uvicorn[standard]==0.54.*
 sqlalchemy==2.0.*
 pydantic-settings==2.6.*
 influxdb-client==1.47.*
 httpx==0.28.*
 pytest==8.3.*
+# assistente de IA (etapa 4)
+mcp==2.3.*
+anthropic==1.14.*

@@ -395,24 +395,75 @@ Critérios usados:
 
 
 ---------------------------------------------------------------------
-10. FERRAMENTAS DO SERVIDOR MCP (prévia da etapa 4)
+10. ASSISTENTE DE IA E SERVIDOR MCP (implementado na etapa 4)
 ---------------------------------------------------------------------
 
 O TCC 2.6 diz que a IA usa o MCP "para consultar o histórico de triggers e
 métricas de hardware". O servidor MCP não acessa os bancos diretamente: ele
 chama a mesma API acima, então a IA vê exatamente o que o dashboard vê.
-Ferramentas previstas:
 
-   list_servers()                          -> GET /servers
-   get_server(host_id)                     -> GET /servers/{id}
-   get_metrics(host_id, metric, range)     -> GET /servers/{id}/metrics
-   list_alerts(status, host_id, from, to)  -> GET /alerts
-   get_trigger_rules(host_id)              -> GET /triggers
-   get_overview(range)                     -> GET /overview
-   create_report(type, range, host_ids)    -> POST /reports
+10.1 Como as partes se ligam
 
-Os nomes que o chat atual mostra (mcp.triggers.history etc.) vão passar a
-ser os nomes reais dessas ferramentas, vindos de tool_calls na resposta.
+   chat do painel -> POST /assistant/messages -> agente (laço de ferramentas)
+        agente <-> LLM (Ollama local ou Claude)
+        agente <-> cliente MCP <-stdio-> servidor MCP (processo separado)
+                                              -> API REST do SMI (HTTP)
+
+O agente repete: o LLM responde com texto ou pede ferramentas; as
+ferramentas rodam no servidor MCP; os resultados voltam ao LLM. Termina
+quando o LLM responde só com texto (limite de 8 rodadas por pergunta).
+A conversa fica na memória do backend e é identificada por
+conversation_id, o que permite perguntas de seguimento ("e a memória dele?").
+
+10.2 Ferramentas implementadas
+
+   get_overview(range)                       -> GET /overview + /servers + /alerts
+   list_servers(status)                      -> GET /servers
+   get_server(host_id)                       -> GET /servers/{id} + /alerts + /triggers
+   get_metrics(host_id, metric, range)       -> GET /servers/{id}/metrics
+   list_alerts(status, host_id, severity,
+               hours, limit)                 -> GET /alerts
+   get_trigger_rules(host_id)                -> GET /triggers
+   create_report(type, range)                -> POST /reports
+
+10.3 Modelo de linguagem: Ollama como padrão, Claude como alternativa
+(DECISÃO PRÓPRIA, tomada com os autores)
+
+O MCP é um padrão aberto e não depende de um modelo específico. O protótipo
+usa por padrão o Ollama com o modelo qwen2.5:7b, que roda na própria
+máquina, é gratuito e não envia os dados de monitoramento para fora da
+rede. O Claude (Anthropic) fica disponível como alternativa, trocando uma
+variável (SMI_LLM_PROVIDER=anthropic). Na monografia vale deixar claro que
+o PROTOCOLO é o MCP e informar qual MODELO foi usado nos testes.
+
+10.4 O que aprendemos ao testar com o modelo local (útil para a monografia)
+
+a) As ferramentas precisam entregar a informação já organizada. Na
+   primeira versão, get_overview devolvia "os 5 alertas mais recentes"
+   (vários já resolvidos) e o modelo de 7 bilhões de parâmetros concluiu
+   que o servidor errado estava "em pior estado". Quando a ferramenta
+   passou a devolver os servidores com problema JÁ ORDENADOS do pior para o
+   melhor, a resposta ficou correta. Regra: com modelos pequenos, o sistema
+   ordena, filtra e agrega; o modelo interpreta.
+
+b) Horários vêm prontos no horário local. Mesmo instruído, o modelo não
+   convertia UTC para o horário local; o servidor MCP faz a conversão.
+
+c) Alerta resolvido mostra o pior valor, não o valor final. O valor no
+   momento da resolução já está normal e o modelo o apresentava como se
+   fosse o problema.
+
+d) Relatórios: os números vêm do sistema, a IA só interpreta. As tabelas e
+   totais são calculados pelo backend (determinísticos e auditáveis); a IA
+   escreve apenas a seção "Análise do assistente". Quando a IA precisou
+   contar alertas numa tabela longa, errou alguns detalhes; com o
+   agrupamento "Alertas por servidor" calculado pelo sistema, os números
+   da análise ficaram corretos. Se a IA falhar, o relatório sai mesmo
+   assim, com um aviso.
+
+e) Desempenho (RTX 4060 8 GB): a primeira pergunta após ligar a máquina
+   leva cerca de 55 s (carregamento do modelo na GPU); as seguintes, de 7 a
+   17 s, incluindo as consultas ao MCP.
 
 
 ---------------------------------------------------------------------

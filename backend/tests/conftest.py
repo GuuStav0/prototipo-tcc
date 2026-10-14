@@ -8,6 +8,7 @@ _tmp = Path(tempfile.mkdtemp(prefix="smi-test-"))
 os.environ["SMI_DATABASE_URL"] = f"sqlite:///{(_tmp / 'test.db').as_posix()}"
 os.environ["SMI_METRICS_BACKEND"] = "sqlite"
 os.environ["SMI_INGEST_TOKEN"] = "test-token"
+os.environ["SMI_LLM_PROVIDER"] = "none"  # testes não chamam modelos de verdade
 
 import pytest  # noqa: E402
 from fastapi.testclient import TestClient  # noqa: E402

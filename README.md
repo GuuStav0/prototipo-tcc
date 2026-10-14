@@ -9,14 +9,14 @@ O SMI monitora a integridade física de servidores (CPU, memória, disco e tempe
 
 ## Estado atual
 
-O dashboard lê todos os dados da API, que por enquanto recebe as leituras de um coletor simulado. O assistente de IA ainda é simulado (`src/utils/chatAssistant.js`), mas suas respostas já usam os dados reais.
+O dashboard lê todos os dados da API, que por enquanto recebe as leituras de um coletor simulado. O assistente de IA usa um modelo local (Ollama, gratuito) ou o Claude, e consulta os dados pelas ferramentas de um servidor MCP.
 
 | Camada | Status |
 | --- | --- |
 | Dashboard (React) | ✅ ligado à API, com atualização a cada 10 s |
 | Backend REST + motor de gatilhos | ✅ pronto, com coletor simulado |
 | Armazenamento (InfluxDB) | ✅ InfluxDB 2.x ou SQLite (desenvolvimento) |
-| Servidor MCP + IA | ⏳ a fazer (etapa 4) |
+| Servidor MCP + IA | ✅ Ollama (padrão) ou Claude; chat e análise dos relatórios |
 | Coletor SNMP/IPMI | ⏳ a fazer (etapa 5) |
 
 ## Stack do front-end
@@ -25,7 +25,7 @@ React 18, Vite, React Router, Recharts e lucide-react.
 
 ## Como rodar
 
-Requer Node.js 20.19 ou superior e Python 3.12 ou superior. A instalação do backend é feita uma vez, conforme o [`backend/README.md`](backend/README.md).
+Requer Node.js 20.19 ou superior e Python 3.12 ou superior. A instalação do backend e do assistente de IA (Ollama) é feita uma vez, conforme o [`backend/README.md`](backend/README.md).
 
 Use três terminais, todos abertos na pasta do projeto:
 

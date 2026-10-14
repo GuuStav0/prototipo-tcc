@@ -59,6 +59,9 @@ export const api = {
   alerts: (params, opts) => request("/alerts", { params, ...opts }),
   updateAlert: (id, body) => request(`/alerts/${id}`, { method: "PATCH", body }),
 
+  assistantStatus: (opts) => request("/assistant/status", opts),
+  assistantMessage: (body, opts) => request("/assistant/messages", { method: "POST", body, ...opts }),
+
   reports: (opts) => request("/reports", opts),
   report: (id, opts) => request(`/reports/${id}`, opts),
   createReport: (body) => request("/reports", { method: "POST", body }),

@@ -93,9 +93,14 @@ def build_content(db: Session, store: MetricsStore, report: Report) -> tuple[str
                 dur = _fmt_dur((end - a.started_at).total_seconds()) + ("" if a.resolved_at else " (ativo)")
                 lines.append(f"| {_fmt_dt(a.started_at)} | {a.host_id} | {a.trigger_name} | "
                              f"{SEV_PT[a.peak_severity]} | {_num(a.value_peak)} | {dur} |")
-            by_host = Counter(a.host_id for a in alerts).most_common(3)
-            lines += ["", "**Servidores com mais alertas:** "
-                      + ", ".join(f"{h} ({n})" for h, n in by_host)]
+            # agrupamento calculado pelo sistema: a IA lê o resumo em vez de contar linhas
+            lines += ["", "## Alertas por servidor", ""]
+            for host, n in Counter(a.host_id for a in alerts).most_common():
+                kinds = Counter(a.trigger_name for a in alerts if a.host_id == host)
+                crit = sum(1 for a in alerts if a.host_id == host and a.peak_severity == "critical")
+                active = sum(1 for a in alerts if a.host_id == host and a.resolved_at is None)
+                detail = ", ".join(f"{name} ×{k}" for name, k in kinds.most_common())
+                lines.append(f"- **{host}**: {n} alerta(s), {crit} crítico(s), {active} ainda ativo(s) — {detail}")
 
     elif report.type == "performance":
         lines += ["## Uso de recursos por servidor (média / máximo)", "",
@@ -128,17 +133,63 @@ def build_content(db: Session, store: MetricsStore, report: Report) -> tuple[str
     return "\n".join(lines) + "\n", summary
 
 
-def generate_report(report_id: int, store: MetricsStore, session_factory=SessionLocal) -> None:
-    """Executada em segundo plano depois de POST /reports."""
+ANALYSIS_SYSTEM = """Você é o assistente de infraestrutura do SMI e escreve a análise de um relatório de monitoramento de servidores.
+Use SOMENTE os dados do relatório recebido; não invente números, servidores ou eventos.
+Escreva em português do Brasil, em Markdown, sem título principal, com três partes curtas:
+**Resumo executivo** (2 a 3 frases), **Pontos de atenção** (lista com os problemas mais relevantes e sua possível relação entre si) e **Recomendações** (lista de ações práticas).
+Se não houver problemas, diga isso e recomende apenas a manutenção preventiva."""
+
+
+def _insert_analysis(content: str, analysis: str) -> str:
+    """Coloca a análise logo depois da seção Resumo."""
+    marker = "\n## "
+    first = content.find(marker + "Resumo")
+    nxt = content.find(marker, first + 1) if first >= 0 else -1
+    section = f"\n## Análise do assistente (IA)\n\n{analysis.strip()}\n"
+    if nxt < 0:
+        return content + section
+    return content[:nxt] + "\n" + section + content[nxt:]
+
+
+def _ai_analysis(content: str) -> str:
+    """Pede a análise ao LLM. Roda numa thread de segundo plano, por isso tem o próprio loop."""
+    import asyncio
+
+    from .assistant import build_provider
+    from .assistant.agent import Assistant
+
+    provider = build_provider()
+    if provider is None:
+        raise RuntimeError("assistente desligado")
+    return asyncio.run(Assistant(provider, toolbox=None).complete_text(ANALYSIS_SYSTEM, content))
+
+
+def generate_report(report_id: int, store: MetricsStore, session_factory=SessionLocal,
+                    analyze=_ai_analysis) -> None:
+    """Executada em segundo plano depois de POST /reports.
+
+    Os números e tabelas vêm sempre do sistema; a IA só acrescenta a interpretação. Se a IA
+    falhar, o relatório sai mesmo assim, com um aviso.
+    """
     with session_factory() as db:
         report = db.get(Report, report_id)
         if report is None:
             return
         try:
-            report.content, report.summary = build_content(db, store, report)
-            report.status = "ready"
+            content, report.summary = build_content(db, store, report)
         except Exception as exc:  # o relatório falha sozinho, sem derrubar a API
             report.status = "failed"
             report.summary = f"Falha ao gerar: {exc}"
+            report.completed_at = utcnow()
+            db.commit()
+            return
+
+        try:
+            content = _insert_analysis(content, analyze(content))
+            report.generated_by = "assistant"
+        except Exception as exc:
+            content = _insert_analysis(content, f"_Análise por IA indisponível: {exc}_")
+        report.content = content
+        report.status = "ready"
         report.completed_at = utcnow()
         db.commit()

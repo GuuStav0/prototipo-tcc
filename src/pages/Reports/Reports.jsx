@@ -38,7 +38,7 @@ export default function Reports() {
           <button className="smi-btn" onClick={() => setShowForm((v) => !v)}><Plus size={14} /> Gerar novo relatório</button>
         </div>
         <p className="smi-muted" style={{ fontSize: 12.5, marginTop: 0 }}>
-          Gerados a partir dos dados coletados e do histórico de alertas. Na etapa 4 o texto passa a ser redigido pela IA via MCP.
+          Os números e tabelas vêm dos dados coletados; a seção "Análise do assistente" é escrita pela IA a partir deles.
         </p>
 
         {showForm && (

@@ -311,6 +311,39 @@ class IngestResult(BaseModel):
     rejected: list[Rejected]
 
 
+# ---------- assistente ----------
+class ChatRequest(BaseModel):
+    conversation_id: str | None = Field(None, max_length=64)
+    message: str = Field(min_length=1, max_length=4000)
+
+
+class ToolCallOut(BaseModel):
+    name: str
+    arguments: dict
+
+
+class ChatResponse(BaseModel):
+    conversation_id: str
+    reply: str
+    tool_calls: list[ToolCallOut]
+    created_at: datetime
+
+
+class McpStatus(BaseModel):
+    connected: bool
+    tools: list[str]
+    detail: str
+
+
+class AssistantStatus(BaseModel):
+    enabled: bool
+    provider: str | None
+    model: str | None
+    available: bool
+    detail: str
+    mcp: McpStatus
+
+
 # ---------- sistema ----------
 class HealthComponents(BaseModel):
     database: Literal["ok", "down"]
