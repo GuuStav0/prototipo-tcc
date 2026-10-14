@@ -48,7 +48,7 @@ export default function ServerForm({ onCreated, onCancel }) {
       <div className="smi-form-row">
         <label>Identificador
           <input className="smi-select" required pattern="[a-z0-9][a-z0-9\-]{1,62}" value={form.id} onChange={set("id")}
-            placeholder="vps-hostinger" title="letras minúsculas, números e hífen" />
+            placeholder="vps-provedor" title="letras minúsculas, números e hífen" />
         </label>
         <label>Função
           <input className="smi-select" value={form.role} onChange={set("role")} placeholder="Web / Laravel" />

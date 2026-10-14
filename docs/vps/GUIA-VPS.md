@@ -88,7 +88,7 @@ Deve responder `{"status":"ok", ...}`.
 
 No painel, vá em **Servidores → Cadastrar servidor**:
 
-- **Identificador:** `vps-hostinger`. É ele que vai no `SMI_HOST_ID` do agente.
+- **Identificador:** `vps-nome`. É ele que vai no `SMI_HOST_ID` do agente.
 - **Endereço:** o IP da VPS no Tailscale.
 - **Forma de coleta:** Agente.
 
@@ -96,10 +96,11 @@ O servidor aparece como **Real** e fica em "Sem dados" até o agente começar a 
 
 ## 7. Instalar o agente na VPS
 
-1. Copie a pasta do agente do PC para a VPS. No PowerShell do PC, na pasta do projeto:
+1. Copie a pasta do agente do PC para a VPS. No PowerShell do PC, na pasta do projeto, use o **IP público** da VPS, o mesmo do seu SSH de sempre (está no painel da Hostinger):
    ```powershell
-   scp -r backend\agent <usuario>@<IP público ou Tailscale da VPS>:/tmp/smi-agent
+   scp -r backend\agent <usuario>@<IP PÚBLICO da VPS>:/tmp/smi-agent
    ```
+   Se o seu SSH usa outra porta, acrescente `-P <porta>`. **Não use o IP do Tailscale (100.x.y.z) aqui:** a política do passo 4 bloqueia a porta 22 dentro da rede Tailscale, de propósito, e a conexão dá *timeout*.
 2. Na VPS, instale. O script mostra o que faz e **não inicia nada sozinho**:
    ```bash
    cd /tmp/smi-agent
@@ -113,7 +114,7 @@ O servidor aparece como **Real** e fica em "Sem dados" até o agente começar a 
    ```
    SMI_API_URL=http://<IP do PC no Tailscale>:8000/api/v1
    SMI_INGEST_TOKEN=<o mesmo token do backend\.env>
-   SMI_HOST_ID=vps-hostinger
+   SMI_HOST_ID=<nome que definiu no sistema de monitoramento>
    SMI_INTERVAL=15
    ```
 4. Inicie e acompanhe:
@@ -149,12 +150,19 @@ Demonstra o protocolo central da monografia (seção 2.3.1) na mesma VPS. O mais
    sudo systemctl stop snmpd
    sudo cp /etc/snmp/snmpd.conf /etc/snmp/snmpd.conf.original      # backup
    ```
-   Copie `backend/collector/snmpd.conf` do PC para a VPS (como no passo 7, com `scp`) e:
-   ```bash
-   sudo cp snmpd.conf /etc/snmp/snmpd.conf
-   sudo sed -i "s/TAILSCALE_IP_DA_VPS/$(tailscale ip -4)/" /etc/snmp/snmpd.conf
+   Copie os arquivos do PC para a VPS, de novo pelo **IP público**, na pasta do projeto:
+   ```powershell
+   scp backend\collector\snmpd.conf backend\collector\snmpd-override.conf <usuario>@<IP PÚBLICO da VPS>:/tmp/
    ```
-2. Crie o usuário SNMPv3. Escolha duas senhas com **8 ou mais caracteres**:
+   E na VPS, colando **uma linha por vez** (colar várias linhas juntas no terminal SSH pode embaralhar os comandos):
+   ```bash
+   cd /tmp
+   sudo cp snmpd.conf /etc/snmp/snmpd.conf
+   IP=$(tailscale ip -4)
+   sudo sed -i "s/TAILSCALE_IP_DA_VPS/$IP/" /etc/snmp/snmpd.conf
+   grep agentaddress /etc/snmp/snmpd.conf      # deve mostrar udp:100.x.y.z:161
+   ```
+2. Crie o usuário SNMPv3, **com o `snmpd` parado**. Ao desligar, o snmpd regrava esse arquivo e descartaria uma linha adicionada com ele ligado. Escolha duas senhas com **8 ou mais caracteres**, as mesmas que vão no cadastro do painel:
    ```bash
    echo 'createUser smi SHA "SENHA-DE-AUTENTICACAO" AES "SENHA-DE-CRIPTOGRAFIA"' | sudo tee -a /var/lib/snmp/snmpd.conf
    ```
@@ -168,14 +176,14 @@ Demonstra o protocolo central da monografia (seção 2.3.1) na mesma VPS. O mais
    ss -ulpn | grep 161     # deve mostrar o snmpd escutando SÓ no IP 100.x.y.z
    ```
 4. No painel, **Cadastrar servidor**:
-   - **Identificador:** `vps-hostinger-snmp`
+   - **Identificador:** `vps-<provedor-nome>-snmp`
    - **Endereço:** o IP da VPS no Tailscale
    - **Coleta:** SNMP v3, usuário `smi` e as duas senhas
 5. No PC, teste uma consulta (pasta `backend`):
    ```powershell
-   .venv\Scripts\python -m collector.snmp_poller --test vps-hostinger-snmp
+   .venv\Scripts\python -m collector.snmp_poller --test vps-<provedor-nome>-snmp
    ```
-   Deve aparecer algo como `vps-hostinger-snmp (120 ms): reachable=1, cpu=..., ram=..., disk=...`.
+   Deve aparecer algo como `vps-<provedor-nome>-snmp (120 ms): reachable=1, cpu=..., ram=..., disk=...`.
 6. Deixe o coletor rodando num terminal à parte:
    ```powershell
    .venv\Scripts\python -m collector.snmp_poller
