@@ -2,6 +2,7 @@
 de gatilhos. Usada pela rota POST /ingest/metrics e pelo watchdog (leituras internas).
 """
 
+import threading
 from datetime import timedelta
 
 from sqlalchemy.orm import Session
@@ -15,6 +16,11 @@ from .metrics_store import MetricsStore, StoredSample
 from .models import LatestReading, Server
 
 MAX_CLOCK_SKEW = timedelta(seconds=60)
+
+# O SQLite aceita um escritor por vez. Enfileirar as ingestões aqui (em ordem) evita disputa
+# pela trava do banco quando muitos coletores enviam ao mesmo tempo; as leituras do dashboard
+# continuam em paralelo (modo WAL).
+_WRITE_LOCK = threading.Lock()
 
 
 def _check(sample: schemas.Sample, server: Server | None, source: str, now) -> str | None:
@@ -46,6 +52,12 @@ def _check(sample: schemas.Sample, server: Server | None, source: str, now) -> s
 
 def ingest(db: Session, store: MetricsStore, source: str,
            samples: list[schemas.Sample]) -> schemas.IngestResult:
+    with _WRITE_LOCK:
+        return _ingest(db, store, source, samples)
+
+
+def _ingest(db: Session, store: MetricsStore, source: str,
+            samples: list[schemas.Sample]) -> schemas.IngestResult:
     now = utcnow()
     servers: dict[str, Server | None] = {}
     rejected: list[schemas.Rejected] = []
@@ -63,7 +75,7 @@ def ingest(db: Session, store: MetricsStore, source: str,
     series = [s for s in accepted if s.metric != "uptime"]
     if series:
         try:
-            store.write([StoredSample(s.host_id, s.metric, s.value, source, s.collected_at) for s in series])
+            store.write([StoredSample(s.host_id, s.metric, s.value, source, s.collected_at) for s in series], db=db)
         except Exception as exc:
             raise ApiError(503, "metrics_store_unavailable",
                            f"não foi possível gravar as leituras: {exc}") from exc

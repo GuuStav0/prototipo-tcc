@@ -135,8 +135,9 @@ class Simulator:
 
     def log_fault_changes(self, faults: dict, at: datetime) -> None:
         current = set(faults)
-        new_file = not FAULT_LOG.exists()
-        with FAULT_LOG.open("a", newline="", encoding="utf-8") as f:
+        log_path = self.faults_path.with_name(FAULT_LOG.name)  # ao lado do arquivo de falhas
+        new_file = not log_path.exists()
+        with log_path.open("a", newline="", encoding="utf-8") as f:
             w = csv.writer(f)
             if new_file:
                 w.writerow(["event", "host", "metric", "value", "at"])

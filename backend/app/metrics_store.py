@@ -47,7 +47,8 @@ def _bucket_starts(start: datetime, stop: datetime, step: int) -> list[int]:
 
 
 class MetricsStore:
-    def write(self, samples: list[StoredSample]) -> None: ...
+    def write(self, samples: list[StoredSample], db: Session | None = None) -> None:
+        """db: sessão da requisição, quando o armazenamento usa o mesmo banco (SQLite)."""
     def series(self, host_id: str, metrics: list[str], start: datetime, stop: datetime,
                step: int, aggregation: str) -> dict[str, list[tuple[datetime, float | None]]]: ...
     def stats(self, host_id: str, metric: str, start: datetime, stop: datetime) -> Stats: ...
@@ -76,7 +77,13 @@ class SqliteMetricsStore(MetricsStore):
     def _session(self) -> Session:
         return self._session_factory()
 
-    def write(self, samples):
+    def write(self, samples, db=None):
+        # Com a sessão da requisição, grava na MESMA conexão e transação (uma conexão por
+        # requisição; abrir uma segunda aqui travava o pool sob muitos envios simultâneos).
+        if db is not None:
+            db.add_all(MetricSample(host_id=s.host_id, metric=s.metric, value=s.value,
+                                    source=s.source, ts=_epoch(s.collected_at)) for s in samples)
+            return
         with self._session() as db:
             db.add_all(
                 MetricSample(host_id=s.host_id, metric=s.metric, value=s.value,
@@ -165,7 +172,7 @@ class InfluxMetricsStore(MetricsStore):
             f" |> filter(fn: (r) => {predicate})"
         )
 
-    def write(self, samples):
+    def write(self, samples, db=None):
         from influxdb_client import Point, WritePrecision
 
         points = [

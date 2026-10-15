@@ -166,5 +166,6 @@ agent/                 # agente para servidores Linux + install.sh, uninstall.sh
 collector/             # coletor SNMP + configuração do snmpd para a VPS
 smi_mcp/server.py      # servidor MCP: as ferramentas que a IA usa
 simulator/simulate.py  # coletor simulado (só para servidores em modo simulado)
+evaluation/            # testes da etapa 6 (precisão, detecção, desempenho, carga, recursos, IA); ver evaluation/README.md
 tests/                 # testes do motor, da API, do assistente, dos servidores reais e do SNMP
 ```

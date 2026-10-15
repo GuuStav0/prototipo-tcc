@@ -40,8 +40,13 @@ class Base(DeclarativeBase):
 
 
 def make_engine(url: str):
-    connect_args = {"check_same_thread": False} if url.startswith("sqlite") else {}
-    engine = create_engine(url, connect_args=connect_args)
+    if url.startswith("sqlite"):
+        # timeout: quanto uma conexão espera pela trava de escrita do SQLite antes de desistir;
+        # pool maior que o padrão (5+10) para as leituras do dashboard durante muitos envios
+        engine = create_engine(url, connect_args={"check_same_thread": False, "timeout": 30},
+                               pool_size=20, max_overflow=40, pool_timeout=60)
+    else:
+        engine = create_engine(url)
     if url.startswith("sqlite"):
         @event.listens_for(engine, "connect")
         def _sqlite_pragmas(conn, _):

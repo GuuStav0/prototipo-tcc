@@ -261,12 +261,22 @@ def get_metrics(host_id: str, metric: str, range: str = "24h") -> dict:
     delta = last - first
     trend = "estável" if abs(delta) < 3 else ("subindo" if delta > 0 else "caindo")
 
-    stride = max(1, len(series["points"]) // 24)
-    sample = [
-        [p["t"][11:16] if range in ("1h", "6h", "24h") else p["t"][5:16].replace("T", " "),
-         round(p["v"], 1) if p["v"] is not None else None]
-        for p in series["points"][::stride]
-    ]
+    # só pontos com valor, no horário local (janela vazia na agregação não é falha de coleta)
+    com_valor = [p for p in series["points"] if p["v"] is not None]
+    stride = max(1, len(com_valor) // 24)
+    curto = range in ("1h", "6h", "24h")
+    sample = [[_parse(p["t"]).astimezone().strftime("%H:%M" if curto else "%d/%m %H:%M"), round(p["v"], 1)]
+              for p in com_valor[::stride]]
+
+    # lacuna de coleta de verdade = mais de 10 min seguidos sem nenhuma leitura
+    lacunas, inicio_vazio = [], None
+    for p in series["points"]:
+        if p["v"] is None and inicio_vazio is None:
+            inicio_vazio = p["t"]
+        elif p["v"] is not None and inicio_vazio is not None:
+            if (_parse(p["t"]) - _parse(inicio_vazio)).total_seconds() > 600:
+                lacunas.append(f"{_local(inicio_vazio)} a {_local(p['t'])}")
+            inicio_vazio = None
     return {
         "host": host_id,
         "metrica": metric,
@@ -277,6 +287,7 @@ def get_metrics(host_id: str, metric: str, range: str = "24h") -> dict:
         "maximo": round(max(values), 1),
         "ultimo": round(values[-1], 1),
         "tendencia": f"{trend} ({delta:+.1f}{unit} entre o início e o fim da janela)",
+        "lacunas_de_coleta": lacunas or "nenhuma (a coleta não ficou mais de 10 min sem dados)",
         "amostras_hora_valor": sample,
     }
 

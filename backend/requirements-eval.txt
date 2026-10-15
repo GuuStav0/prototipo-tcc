@@ -1,0 +1,5 @@
+# Dependências só da avaliação (etapa 6). Instale com:
+#   .venv\Scripts\pip install -r requirements-eval.txt
+# O Playwright usa o Microsoft Edge já instalado no Windows (não baixa navegador).
+playwright==1.*
+matplotlib==3.*
