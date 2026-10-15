@@ -1,0 +1,237 @@
+{
+  "teste": "desempenho",
+  "executado_em": "2026-10-14T23:49:38+00:00",
+  "maquina": {
+    "sistema": "Windows 10",
+    "processador": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "nucleos_logicos": 16,
+    "ram_gb": 31.9,
+    "frequencia_mhz": 3001,
+    "python": "3.12.10"
+  },
+  "meta": "< 2000 ms entre abrir a tela e o carregamento completo da interface",
+  "metodo": "Microsoft Edge (headless), build de produção do painel, 7 dias de histórico de 10 servidores; cronômetro até haver conteúdo na tela e nenhum indicador de carregamento",
+  "repeticoes": {
+    "fria": 5,
+    "quente": 10,
+    "api": 30
+  },
+  "telas": {
+    "Visão Geral": {
+      "fria_ms": {
+        "n": 5,
+        "media": 431.3,
+        "desvio": 22.0,
+        "min": 395.5,
+        "mediana": 433.9,
+        "p95": 451.8,
+        "max": 454.1
+      },
+      "quente_ms": {
+        "n": 10,
+        "media": 60.3,
+        "desvio": 6.5,
+        "min": 51.2,
+        "mediana": 60.9,
+        "p95": 68.4,
+        "max": 69.3
+      }
+    },
+    "Servidores": {
+      "fria_ms": {
+        "n": 5,
+        "media": 353.4,
+        "desvio": 12.1,
+        "min": 342.3,
+        "mediana": 346.0,
+        "p95": 366.9,
+        "max": 367.2
+      },
+      "quente_ms": {
+        "n": 10,
+        "media": 20.3,
+        "desvio": 6.8,
+        "min": 16.5,
+        "mediana": 16.7,
+        "p95": 33.0,
+        "max": 33.1
+      }
+    },
+    "Detalhe do servidor": {
+      "fria_ms": {
+        "n": 5,
+        "media": 439.2,
+        "desvio": 12.7,
+        "min": 425.9,
+        "mediana": 442.9,
+        "p95": 453.0,
+        "max": 454.7
+      },
+      "quente_ms": {
+        "n": 10,
+        "media": 61.8,
+        "desvio": 15.6,
+        "min": 51.8,
+        "mediana": 57.0,
+        "p95": 85.7,
+        "max": 105.4
+      }
+    },
+    "Gatilhos": {
+      "fria_ms": {
+        "n": 5,
+        "media": 356.5,
+        "desvio": 16.5,
+        "min": 344.5,
+        "mediana": 345.1,
+        "p95": 377.3,
+        "max": 379.4
+      },
+      "quente_ms": {
+        "n": 10,
+        "media": 21.6,
+        "desvio": 7.1,
+        "min": 16.2,
+        "mediana": 18.0,
+        "p95": 33.3,
+        "max": 33.6
+      }
+    },
+    "Métricas": {
+      "fria_ms": {
+        "n": 5,
+        "media": 431.9,
+        "desvio": 7.3,
+        "min": 423.3,
+        "mediana": 432.7,
+        "p95": 440.9,
+        "max": 442.9
+      },
+      "quente_ms": {
+        "n": 10,
+        "media": 72.4,
+        "desvio": 7.1,
+        "min": 65.6,
+        "mediana": 69.5,
+        "p95": 84.5,
+        "max": 86.0
+      }
+    },
+    "Topologia": {
+      "fria_ms": {
+        "n": 5,
+        "media": 336.5,
+        "desvio": 9.5,
+        "min": 324.7,
+        "mediana": 339.7,
+        "p95": 345.0,
+        "max": 345.0
+      },
+      "quente_ms": {
+        "n": 10,
+        "media": 17.5,
+        "desvio": 1.7,
+        "min": 16.0,
+        "mediana": 16.9,
+        "p95": 20.5,
+        "max": 21.8
+      }
+    },
+    "Relatórios": {
+      "fria_ms": {
+        "n": 5,
+        "media": 352.4,
+        "desvio": 8.3,
+        "min": 341.6,
+        "mediana": 354.9,
+        "p95": 361.1,
+        "max": 362.2
+      },
+      "quente_ms": {
+        "n": 10,
+        "media": 14.0,
+        "desvio": 4.4,
+        "min": 8.5,
+        "mediana": 16.2,
+        "p95": 18.6,
+        "max": 18.9
+      }
+    }
+  },
+  "api_ms": {
+    "GET /overview": {
+      "n": 30,
+      "media": 6.4,
+      "desvio": 5.2,
+      "min": 5.3,
+      "mediana": 5.4,
+      "p95": 5.9,
+      "max": 34.1
+    },
+    "GET /servers": {
+      "n": 30,
+      "media": 3.0,
+      "desvio": 0.1,
+      "min": 2.9,
+      "mediana": 3.0,
+      "p95": 3.2,
+      "max": 3.2
+    },
+    "GET /servers/{id}": {
+      "n": 30,
+      "media": 2.2,
+      "desvio": 0.1,
+      "min": 2.0,
+      "mediana": 2.1,
+      "p95": 2.3,
+      "max": 2.4
+    },
+    "GET /servers/{id}/metrics (4 séries, 24 h)": {
+      "n": 30,
+      "media": 8.3,
+      "desvio": 0.1,
+      "min": 8.1,
+      "mediana": 8.2,
+      "p95": 8.6,
+      "max": 8.6
+    },
+    "GET /servers/{id}/metrics (4 séries, 7 dias)": {
+      "n": 30,
+      "media": 23.5,
+      "desvio": 0.2,
+      "min": 23.2,
+      "mediana": 23.5,
+      "p95": 24.0,
+      "max": 24.1
+    },
+    "GET /alerts (100 mais recentes)": {
+      "n": 30,
+      "media": 4.1,
+      "desvio": 0.1,
+      "min": 3.9,
+      "mediana": 4.1,
+      "p95": 4.3,
+      "max": 4.6
+    },
+    "GET /triggers": {
+      "n": 30,
+      "media": 1.6,
+      "desvio": 0.1,
+      "min": 1.4,
+      "mediana": 1.5,
+      "p95": 1.7,
+      "max": 1.7
+    },
+    "GET /reports": {
+      "n": 30,
+      "media": 1.4,
+      "desvio": 0.1,
+      "min": 1.3,
+      "mediana": 1.4,
+      "p95": 1.5,
+      "max": 1.6
+    }
+  },
+  "pior_carregamento_frio_ms": 455,
+  "atingiu_meta": true
+}

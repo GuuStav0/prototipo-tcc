@@ -1,0 +1,2352 @@
+{
+  "teste": "precisao",
+  "executado_em": "2026-10-14T23:31:38+00:00",
+  "maquina": {
+    "sistema": "Windows 10",
+    "processador": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "nucleos_logicos": 16,
+    "ram_gb": 31.9,
+    "frequencia_mhz": 3001,
+    "python": "3.12.10"
+  },
+  "meta": "precisão > 90%",
+  "definicao": "verdadeiro = alerta correspondente a uma falha real injetada (2 a 8 min acima do limite); falso = alerta por pico curto (15-45 s), ruído, perda de pacote ou repetido",
+  "cenario": {
+    "horas_por_semente": 4,
+    "intervalo_s": 15,
+    "servidores": 10,
+    "falhas_reais_por_semente": 30,
+    "picos_curtos_por_semente": 40,
+    "prob_perda_pacote": 0.002,
+    "sementes": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "autocorrelacao_ruido": 0.6,
+    "perto_do_limite_no_exigente": {
+      "srv-backup-01": {
+        "cpu": [
+          72,
+          5
+        ]
+      },
+      "srv-mail-01": {
+        "ram": [
+          76,
+          3
+        ]
+      },
+      "srv-monitor-01": {
+        "disk": [
+          83,
+          1
+        ],
+        "temp": [
+          62,
+          2
+        ]
+      }
+    }
+  },
+  "cenarios": {
+    "típico": {
+      "consolidado": {
+        "padrão do sistema (60 s; alcance 45 s)": {
+          "precisao": 100.0,
+          "precisao_min_max_por_semente": [
+            100.0,
+            100.0
+          ],
+          "precisao_criticos": 100.0,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 0,
+          "falsos_por_causa": {
+            "pico_curto": 0,
+            "ruido": 0,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 56.8
+        },
+        "0 s": {
+          "precisao": 33.9,
+          "precisao_min_max_por_semente": [
+            31.2,
+            36.1
+          ],
+          "precisao_criticos": 33.9,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 293,
+          "falsos_por_causa": {
+            "pico_curto": 200,
+            "ruido": 0,
+            "repetido": 0,
+            "perda_de_pacote": 93
+          },
+          "atraso_medio_s": 0.0
+        },
+        "15 s": {
+          "precisao": 51.2,
+          "precisao_min_max_por_semente": [
+            47.6,
+            56.6
+          ],
+          "precisao_criticos": 51.4,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 143,
+          "falsos_por_causa": {
+            "pico_curto": 143,
+            "ruido": 0,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 15.0
+        },
+        "30 s": {
+          "precisao": 66.7,
+          "precisao_min_max_por_semente": [
+            62.5,
+            71.4
+          ],
+          "precisao_criticos": 66.7,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 75,
+          "falsos_por_causa": {
+            "pico_curto": 75,
+            "ruido": 0,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 30.0
+        },
+        "60 s": {
+          "precisao": 100.0,
+          "precisao_min_max_por_semente": [
+            100.0,
+            100.0
+          ],
+          "precisao_criticos": 100.0,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 0,
+          "falsos_por_causa": {
+            "pico_curto": 0,
+            "ruido": 0,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 60.0
+        },
+        "120 s": {
+          "precisao": 100.0,
+          "precisao_min_max_por_semente": [
+            100.0,
+            100.0
+          ],
+          "precisao_criticos": 100.0,
+          "revocacao": 96.7,
+          "verdadeiros": 145,
+          "falsos": 0,
+          "falsos_por_causa": {
+            "pico_curto": 0,
+            "ruido": 0,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 120.0
+        }
+      },
+      "por_semente": {
+        "padrão do sistema (60 s; alcance 45 s)": [
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 56.5,
+              "desvio": 6.5,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 54.0,
+              "desvio": 7.5,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 57.5,
+              "desvio": 5.7,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 58.0,
+              "desvio": 5.2,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 58.0,
+              "desvio": 5.2,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "0 s": [
+          {
+            "alertas": 89,
+            "verdadeiros": 30,
+            "falsos": 59,
+            "falsos_por_causa": {
+              "pico_curto": 40,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 19
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 33.7,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                59
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 86,
+            "verdadeiros": 30,
+            "falsos": 56,
+            "falsos_por_causa": {
+              "pico_curto": 40,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 16
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 34.9,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                56
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 83,
+            "verdadeiros": 30,
+            "falsos": 53,
+            "falsos_por_causa": {
+              "pico_curto": 40,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 13
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 36.1,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                53
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 89,
+            "verdadeiros": 30,
+            "falsos": 59,
+            "falsos_por_causa": {
+              "pico_curto": 40,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 19
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 33.7,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                59
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 96,
+            "verdadeiros": 30,
+            "falsos": 66,
+            "falsos_por_causa": {
+              "pico_curto": 40,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 26
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 31.2,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                66
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "15 s": [
+          {
+            "alertas": 53,
+            "verdadeiros": 30,
+            "falsos": 23,
+            "falsos_por_causa": {
+              "pico_curto": 23,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 56.6,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                23
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 59,
+            "verdadeiros": 30,
+            "falsos": 29,
+            "falsos_por_causa": {
+              "pico_curto": 29,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 50.8,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                28
+              ],
+              "warning": [
+                0,
+                1
+              ]
+            }
+          },
+          {
+            "alertas": 63,
+            "verdadeiros": 30,
+            "falsos": 33,
+            "falsos_por_causa": {
+              "pico_curto": 33,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 47.6,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                33
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 61,
+            "verdadeiros": 30,
+            "falsos": 31,
+            "falsos_por_causa": {
+              "pico_curto": 31,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 49.2,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                31
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 57,
+            "verdadeiros": 30,
+            "falsos": 27,
+            "falsos_por_causa": {
+              "pico_curto": 27,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 52.6,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                27
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "30 s": [
+          {
+            "alertas": 42,
+            "verdadeiros": 30,
+            "falsos": 12,
+            "falsos_por_causa": {
+              "pico_curto": 12,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 71.4,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                12
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 48,
+            "verdadeiros": 30,
+            "falsos": 18,
+            "falsos_por_causa": {
+              "pico_curto": 18,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 62.5,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                18
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 45,
+            "verdadeiros": 30,
+            "falsos": 15,
+            "falsos_por_causa": {
+              "pico_curto": 15,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 66.7,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                15
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 44,
+            "verdadeiros": 30,
+            "falsos": 14,
+            "falsos_por_causa": {
+              "pico_curto": 14,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 68.2,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                14
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 46,
+            "verdadeiros": 30,
+            "falsos": 16,
+            "falsos_por_causa": {
+              "pico_curto": 16,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 65.2,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                16
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "60 s": [
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          }
+        ],
+        "120 s": [
+          {
+            "alertas": 29,
+            "verdadeiros": 29,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 29,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 96.7,
+            "atraso_deteccao_s": {
+              "n": 29,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                29,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 29,
+            "verdadeiros": 29,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 29,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 96.7,
+            "atraso_deteccao_s": {
+              "n": 29,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                29,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 27,
+            "verdadeiros": 27,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 27,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 90.0,
+            "atraso_deteccao_s": {
+              "n": 27,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                27,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "exigente": {
+      "consolidado": {
+        "padrão do sistema (60 s; alcance 45 s)": {
+          "precisao": 90.4,
+          "precisao_min_max_por_semente": [
+            81.1,
+            96.8
+          ],
+          "precisao_criticos": 100.0,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 16,
+          "falsos_por_causa": {
+            "pico_curto": 0,
+            "ruido": 16,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 56.8
+        },
+        "0 s": {
+          "precisao": 13.3,
+          "precisao_min_max_por_semente": [
+            12.8,
+            13.9
+          ],
+          "precisao_criticos": 33.9,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 979,
+          "falsos_por_causa": {
+            "pico_curto": 198,
+            "ruido": 687,
+            "repetido": 1,
+            "perda_de_pacote": 93
+          },
+          "atraso_medio_s": 0.0
+        },
+        "15 s": {
+          "precisao": 30.1,
+          "precisao_min_max_por_semente": [
+            27.5,
+            34.9
+          ],
+          "precisao_criticos": 51.4,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 348,
+          "falsos_por_causa": {
+            "pico_curto": 142,
+            "ruido": 206,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 15.0
+        },
+        "30 s": {
+          "precisao": 51.2,
+          "precisao_min_max_por_semente": [
+            46.9,
+            56.6
+          ],
+          "precisao_criticos": 66.7,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 143,
+          "falsos_por_causa": {
+            "pico_curto": 74,
+            "ruido": 69,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 30.0
+        },
+        "60 s": {
+          "precisao": 90.4,
+          "precisao_min_max_por_semente": [
+            81.1,
+            96.8
+          ],
+          "precisao_criticos": 100.0,
+          "revocacao": 100.0,
+          "verdadeiros": 150,
+          "falsos": 16,
+          "falsos_por_causa": {
+            "pico_curto": 0,
+            "ruido": 16,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 60.0
+        },
+        "120 s": {
+          "precisao": 100.0,
+          "precisao_min_max_por_semente": [
+            100.0,
+            100.0
+          ],
+          "precisao_criticos": 100.0,
+          "revocacao": 96.7,
+          "verdadeiros": 145,
+          "falsos": 0,
+          "falsos_por_causa": {
+            "pico_curto": 0,
+            "ruido": 0,
+            "repetido": 0,
+            "perda_de_pacote": 0
+          },
+          "atraso_medio_s": 120.0
+        }
+      },
+      "por_semente": {
+        "padrão do sistema (60 s; alcance 45 s)": [
+          {
+            "alertas": 31,
+            "verdadeiros": 30,
+            "falsos": 1,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 1,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 96.8,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 56.5,
+              "desvio": 6.5,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                1
+              ]
+            }
+          },
+          {
+            "alertas": 37,
+            "verdadeiros": 30,
+            "falsos": 7,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 7,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 81.1,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 54.0,
+              "desvio": 7.5,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                7
+              ]
+            }
+          },
+          {
+            "alertas": 31,
+            "verdadeiros": 30,
+            "falsos": 1,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 1,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 96.8,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 57.5,
+              "desvio": 5.7,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                1
+              ]
+            }
+          },
+          {
+            "alertas": 35,
+            "verdadeiros": 30,
+            "falsos": 5,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 5,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 85.7,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 58.0,
+              "desvio": 5.2,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                5
+              ]
+            }
+          },
+          {
+            "alertas": 32,
+            "verdadeiros": 30,
+            "falsos": 2,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 2,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 93.8,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 58.0,
+              "desvio": 5.2,
+              "min": 45.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                2
+              ]
+            }
+          }
+        ],
+        "0 s": [
+          {
+            "alertas": 216,
+            "verdadeiros": 30,
+            "falsos": 186,
+            "falsos_por_causa": {
+              "pico_curto": 40,
+              "ruido": 127,
+              "repetido": 0,
+              "perda_de_pacote": 19
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 13.9,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                59
+              ],
+              "warning": [
+                0,
+                127
+              ]
+            }
+          },
+          {
+            "alertas": 220,
+            "verdadeiros": 30,
+            "falsos": 190,
+            "falsos_por_causa": {
+              "pico_curto": 39,
+              "ruido": 134,
+              "repetido": 1,
+              "perda_de_pacote": 16
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 13.6,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                56
+              ],
+              "warning": [
+                0,
+                134
+              ]
+            }
+          },
+          {
+            "alertas": 234,
+            "verdadeiros": 30,
+            "falsos": 204,
+            "falsos_por_causa": {
+              "pico_curto": 40,
+              "ruido": 151,
+              "repetido": 0,
+              "perda_de_pacote": 13
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 12.8,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                53
+              ],
+              "warning": [
+                0,
+                151
+              ]
+            }
+          },
+          {
+            "alertas": 228,
+            "verdadeiros": 30,
+            "falsos": 198,
+            "falsos_por_causa": {
+              "pico_curto": 39,
+              "ruido": 140,
+              "repetido": 0,
+              "perda_de_pacote": 19
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 13.2,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                59
+              ],
+              "warning": [
+                0,
+                139
+              ]
+            }
+          },
+          {
+            "alertas": 231,
+            "verdadeiros": 30,
+            "falsos": 201,
+            "falsos_por_causa": {
+              "pico_curto": 40,
+              "ruido": 135,
+              "repetido": 0,
+              "perda_de_pacote": 26
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 13.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 0.0,
+              "desvio": 0.0,
+              "min": 0.0,
+              "mediana": 0.0,
+              "p95": 0.0,
+              "max": 0.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                66
+              ],
+              "warning": [
+                0,
+                135
+              ]
+            }
+          }
+        ],
+        "15 s": [
+          {
+            "alertas": 86,
+            "verdadeiros": 30,
+            "falsos": 56,
+            "falsos_por_causa": {
+              "pico_curto": 23,
+              "ruido": 33,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 34.9,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                23
+              ],
+              "warning": [
+                0,
+                33
+              ]
+            }
+          },
+          {
+            "alertas": 109,
+            "verdadeiros": 30,
+            "falsos": 79,
+            "falsos_por_causa": {
+              "pico_curto": 28,
+              "ruido": 51,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 27.5,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                28
+              ],
+              "warning": [
+                0,
+                51
+              ]
+            }
+          },
+          {
+            "alertas": 107,
+            "verdadeiros": 30,
+            "falsos": 77,
+            "falsos_por_causa": {
+              "pico_curto": 33,
+              "ruido": 44,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 28.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                33
+              ],
+              "warning": [
+                0,
+                44
+              ]
+            }
+          },
+          {
+            "alertas": 103,
+            "verdadeiros": 30,
+            "falsos": 73,
+            "falsos_por_causa": {
+              "pico_curto": 31,
+              "ruido": 42,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 29.1,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                31
+              ],
+              "warning": [
+                0,
+                42
+              ]
+            }
+          },
+          {
+            "alertas": 93,
+            "verdadeiros": 30,
+            "falsos": 63,
+            "falsos_por_causa": {
+              "pico_curto": 27,
+              "ruido": 36,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 32.3,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 15.0,
+              "desvio": 0.0,
+              "min": 15.0,
+              "mediana": 15.0,
+              "p95": 15.0,
+              "max": 15.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                27
+              ],
+              "warning": [
+                0,
+                36
+              ]
+            }
+          }
+        ],
+        "30 s": [
+          {
+            "alertas": 53,
+            "verdadeiros": 30,
+            "falsos": 23,
+            "falsos_por_causa": {
+              "pico_curto": 12,
+              "ruido": 11,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 56.6,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                12
+              ],
+              "warning": [
+                0,
+                11
+              ]
+            }
+          },
+          {
+            "alertas": 64,
+            "verdadeiros": 30,
+            "falsos": 34,
+            "falsos_por_causa": {
+              "pico_curto": 17,
+              "ruido": 17,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 46.9,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                18
+              ],
+              "warning": [
+                0,
+                16
+              ]
+            }
+          },
+          {
+            "alertas": 61,
+            "verdadeiros": 30,
+            "falsos": 31,
+            "falsos_por_causa": {
+              "pico_curto": 15,
+              "ruido": 16,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 49.2,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                15
+              ],
+              "warning": [
+                0,
+                16
+              ]
+            }
+          },
+          {
+            "alertas": 59,
+            "verdadeiros": 30,
+            "falsos": 29,
+            "falsos_por_causa": {
+              "pico_curto": 14,
+              "ruido": 15,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 50.8,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                14
+              ],
+              "warning": [
+                0,
+                15
+              ]
+            }
+          },
+          {
+            "alertas": 56,
+            "verdadeiros": 30,
+            "falsos": 26,
+            "falsos_por_causa": {
+              "pico_curto": 16,
+              "ruido": 10,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 53.6,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 30.0,
+              "desvio": 0.0,
+              "min": 30.0,
+              "mediana": 30.0,
+              "p95": 30.0,
+              "max": 30.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                16
+              ],
+              "warning": [
+                0,
+                10
+              ]
+            }
+          }
+        ],
+        "60 s": [
+          {
+            "alertas": 31,
+            "verdadeiros": 30,
+            "falsos": 1,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 1,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 96.8,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                1
+              ]
+            }
+          },
+          {
+            "alertas": 37,
+            "verdadeiros": 30,
+            "falsos": 7,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 7,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 81.1,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                7
+              ]
+            }
+          },
+          {
+            "alertas": 31,
+            "verdadeiros": 30,
+            "falsos": 1,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 1,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 96.8,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                1
+              ]
+            }
+          },
+          {
+            "alertas": 35,
+            "verdadeiros": 30,
+            "falsos": 5,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 5,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 85.7,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                5
+              ]
+            }
+          },
+          {
+            "alertas": 32,
+            "verdadeiros": 30,
+            "falsos": 2,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 2,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 93.8,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 60.0,
+              "desvio": 0.0,
+              "min": 60.0,
+              "mediana": 60.0,
+              "p95": 60.0,
+              "max": 60.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                2
+              ]
+            }
+          }
+        ],
+        "120 s": [
+          {
+            "alertas": 29,
+            "verdadeiros": 29,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 29,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 96.7,
+            "atraso_deteccao_s": {
+              "n": 29,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                29,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 30,
+            "verdadeiros": 30,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 30,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 100.0,
+            "atraso_deteccao_s": {
+              "n": 30,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                30,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 29,
+            "verdadeiros": 29,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 29,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 96.7,
+            "atraso_deteccao_s": {
+              "n": 29,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                29,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          },
+          {
+            "alertas": 27,
+            "verdadeiros": 27,
+            "falsos": 0,
+            "falsos_por_causa": {
+              "pico_curto": 0,
+              "ruido": 0,
+              "repetido": 0,
+              "perda_de_pacote": 0
+            },
+            "falhas_detectadas": 27,
+            "falhas_total": 30,
+            "precisao": 100.0,
+            "revocacao": 90.0,
+            "atraso_deteccao_s": {
+              "n": 27,
+              "media": 120.0,
+              "desvio": 0.0,
+              "min": 120.0,
+              "mediana": 120.0,
+              "p95": 120.0,
+              "max": 120.0
+            },
+            "por_severidade": {
+              "critical": [
+                27,
+                0
+              ],
+              "warning": [
+                0,
+                0
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "atingiu_meta": {
+    "típico": true,
+    "exigente": true
+  }
+}

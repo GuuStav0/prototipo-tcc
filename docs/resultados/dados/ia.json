@@ -1,0 +1,408 @@
+{
+  "teste": "ia",
+  "executado_em": "2026-10-15T00:31:29+00:00",
+  "maquina": {
+    "sistema": "Windows 10",
+    "processador": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "nucleos_logicos": 16,
+    "ram_gb": 31.9,
+    "frequencia_mhz": 3001,
+    "python": "3.12.10"
+  },
+  "modelo": "ollama · qwen2.5:7b",
+  "metodo": "7 perguntas com resposta conhecida, 3 vezes cada em conversa nova; conferência automática contra a API logo após cada resposta",
+  "taxa_acerto_pct": 100.0,
+  "ferramenta_adequada_pct": 100.0,
+  "respostas_com_servidor_inventado": 0,
+  "erros": 0,
+  "tempo_resposta_s": {
+    "n": 21,
+    "media": 3.9,
+    "desvio": 1.4,
+    "min": 1.4,
+    "mediana": 4.1,
+    "p95": 5.7,
+    "max": 6.0
+  },
+  "primeira_resposta_fria_s": 1.1,
+  "relatorio_com_ia": {
+    "segundos": 12.0,
+    "gerado_por": "assistant",
+    "status": "ready"
+  },
+  "por_pergunta": {
+    "Qual servidor está em pior estado e por quê?": {
+      "acertos": 3,
+      "total": 3,
+      "ferramenta_adequada": 3,
+      "tempo_s": {
+        "n": 3,
+        "media": 5.4,
+        "desvio": 0.5,
+        "min": 5.0,
+        "mediana": 5.3,
+        "p95": 5.9,
+        "max": 6.0
+      }
+    },
+    "Quantos servidores estão em estado crítico agora?": {
+      "acertos": 3,
+      "total": 3,
+      "ferramenta_adequada": 3,
+      "tempo_s": {
+        "n": 3,
+        "media": 4.0,
+        "desvio": 0.7,
+        "min": 3.5,
+        "mediana": 3.7,
+        "p95": 4.7,
+        "max": 4.8
+      }
+    },
+    "Quais servidores estão em estado de aviso?": {
+      "acertos": 3,
+      "total": 3,
+      "ferramenta_adequada": 3,
+      "tempo_s": {
+        "n": 3,
+        "media": 5.0,
+        "desvio": 0.7,
+        "min": 4.3,
+        "mediana": 5.1,
+        "p95": 5.6,
+        "max": 5.7
+      }
+    },
+    "Qual é o uso de disco do srv-backup-01 agora?": {
+      "acertos": 3,
+      "total": 3,
+      "ferramenta_adequada": 3,
+      "tempo_s": {
+        "n": 3,
+        "media": 3.9,
+        "desvio": 0.3,
+        "min": 3.6,
+        "mediana": 3.9,
+        "p95": 4.1,
+        "max": 4.1
+      }
+    },
+    "Existe algum alerta ativo no srv-web-01?": {
+      "acertos": 3,
+      "total": 3,
+      "ferramenta_adequada": 3,
+      "tempo_s": {
+        "n": 3,
+        "media": 1.4,
+        "desvio": 0.1,
+        "min": 1.4,
+        "mediana": 1.4,
+        "p95": 1.5,
+        "max": 1.5
+      }
+    },
+    "Como está a temperatura do srv-app-02 nas últimas 6 horas?": {
+      "acertos": 3,
+      "total": 3,
+      "ferramenta_adequada": 3,
+      "tempo_s": {
+        "n": 3,
+        "media": 4.9,
+        "desvio": 0.2,
+        "min": 4.7,
+        "mediana": 4.9,
+        "p95": 5.1,
+        "max": 5.1
+      }
+    },
+    "Quais são os limites de alerta de CPU que valem para o srv-db-01?": {
+      "acertos": 3,
+      "total": 3,
+      "ferramenta_adequada": 3,
+      "tempo_s": {
+        "n": 3,
+        "media": 2.9,
+        "desvio": 0.4,
+        "min": 2.7,
+        "mediana": 2.7,
+        "p95": 3.3,
+        "max": 3.4
+      }
+    }
+  },
+  "respostas": [
+    {
+      "pergunta": "Qual servidor está em pior estado e por quê?",
+      "repeticao": 1,
+      "segundos": 6.0,
+      "correta": true,
+      "esperado": "esperado srv-app-02",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_overview"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "O servidor em pior estado é o `srv-app-02`, que está em estado `critical`. Ele apresenta os seguintes problemas:\n\n- **Temperatura elevada**: 81.3°C, limiar 75.0°C, há 23 horas.\n- **Memória elevada**: 92.2%, limiar 90.0%, há 23 horas.\n- **CPU elevada**: 90.5%, limiar 80.0%, há 19 horas.\n- **Disco quase cheio**: 88.0%, limiar 85.0%, há 23 horas.\n\nAlém disso, há também alertas de `warning` para `srv-backup-01` e `srv-db-01`, mas o `srv-app-02` é o que está em maior risco.\n\n**Recomendações:**\n- Verifique a resfriamento do `srv-app-02` imediatamente.\n- Monitore a memória e a CPU.\n- Libere espaço no disco se possível."
+    },
+    {
+      "pergunta": "Qual servidor está em pior estado e por quê?",
+      "repeticao": 2,
+      "segundos": 5.3,
+      "correta": true,
+      "esperado": "esperado srv-app-02",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_overview"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "O servidor que está em pior estado é o `srv-app-02`, que está em estado `critical`. Ele apresenta os seguintes problemas:\n\n- **Temperatura elevada**: 81.3°C, limiar 75.0°C, há 23 horas.\n- **Memória elevada**: 92.2%, limiar 90.0%, há 23 horas.\n- **CPU elevada**: 90.5%, limiar 80.0%, há 19 horas.\n- **Disco quase cheio**: 88.0%, limiar 85.0%, há 23 horas.\n\nAlém disso, há ainda dois alertas críticos ativos nesse servidor.\n\nRecomendações:\n- Verifique a resfriamento do servidor `srv-app-02`.\n- Monitore a memória e a CPU para evitar sobrecarga.\n- Libere espaço no disco para evitar problemas futuros."
+    },
+    {
+      "pergunta": "Qual servidor está em pior estado e por quê?",
+      "repeticao": 3,
+      "segundos": 5.0,
+      "correta": true,
+      "esperado": "esperado srv-app-02",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_overview"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "O servidor `srv-app-02` está em pior estado, pois está em estado `critical` com 2 alertas críticos e 2 alertas de aviso ativos:\n\n1. **Temperatura elevada**: 81.3°C, limiar 75.0°C, desde há 23 horas.\n2. **Memória elevada**: 92.2%, limiar 90.0%, desde há 23 horas.\n3. **CPU elevada**: 90.5%, limiar 80.0%, desde há 19 horas.\n4. **Disco quase cheio**: 88.0%, limiar 85.0%, desde há 23 horas.\n\nEstas condições indicam que o servidor `srv-app-02` está sobrecarregado e pode apresentar problemas de desempenho ou falhas se não forem corrigidas."
+    },
+    {
+      "pergunta": "Quantos servidores estão em estado crítico agora?",
+      "repeticao": 1,
+      "segundos": 3.7,
+      "correta": true,
+      "esperado": "esperado 1 servidor(es)",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_overview"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Atualmente, há 1 servidor em estado crítico. O servidor `srv-app-02` está com 2 alertas críticos e 2 alertas de aviso, incluindo:\n\n- Temperatura elevada: 81.5°C (limiar 75.0°C) há 23 horas\n- Memória elevada: 90.0% (limiar 90.0%) há 23 horas\n\nRecomendação: Priorize a resolução desses problemas, especialmente a temperatura e a memória, pois ambos estão há mais tempo críticos."
+    },
+    {
+      "pergunta": "Quantos servidores estão em estado crítico agora?",
+      "repeticao": 2,
+      "segundos": 4.8,
+      "correta": true,
+      "esperado": "esperado 1 servidor(es)",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_overview"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Atualmente, há 1 servidor em estado crítico. O servidor `srv-app-02` está com 2 alertas críticos e 2 alertas de aviso. Os detalhes são:\n\n- Temperatura elevada: 81.5°C (limiar 75.0°C) há 23 horas.\n- Memória elevada: 90.0% (limiar 90.0%) há 23 horas.\n- CPU elevada: 95.7% (limiar 80.0%) há 19 horas.\n- Disco quase cheio: 88.0% (limiar 85.0%) há 23 horas.\n\nRecomendação: Priorize a resolução dos problemas de temperatura e memória, pois são críticos e já duram mais de 23 horas."
+    },
+    {
+      "pergunta": "Quantos servidores estão em estado crítico agora?",
+      "repeticao": 3,
+      "segundos": 3.5,
+      "correta": true,
+      "esperado": "esperado 1 servidor(es)",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_overview"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Atualmente, há 1 servidor em estado crítico. O servidor `srv-app-02` está com 2 alertas críticos e 2 alertas de aviso, incluindo:\n\n- Temperatura elevada: 81.5°C (limiar 75.0°C) há 23 horas\n- Memória elevada: 90.0% (limiar 90.0%) há 23 horas\n\nRecomendação: Priorize a resolução destes problemas no servidor `srv-app-02`."
+    },
+    {
+      "pergunta": "Quais servidores estão em estado de aviso?",
+      "repeticao": 1,
+      "segundos": 4.3,
+      "correta": true,
+      "esperado": "esperado ['srv-backup-01', 'srv-db-01']",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "list_servers"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Os servidores em estado de aviso são:\n\n- **srv-backup-01** (Backup / Bacula):\n  - CPU: 53.2%\n  - Memória: 72.2%\n  - Disco: 93.1%\n  - Temperatura: 53.8°C\n\n- **srv-db-01** (Banco / PostgreSQL):\n  - CPU: 62.0%\n  - Memória: 84.0%\n  - Disco: 71.0%\n  - Temperatura: 59.1°C\n\nAmbos os servidores estão com alertas de aviso há menos de um segundo. Recomendação: Verifique a carga de trabalho e o uso de recursos desses servidores imediatamente."
+    },
+    {
+      "pergunta": "Quais servidores estão em estado de aviso?",
+      "repeticao": 2,
+      "segundos": 5.1,
+      "correta": true,
+      "esperado": "esperado ['srv-backup-01', 'srv-db-01']",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "list_servers"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Os servidores em estado de aviso são:\n\n- **srv-backup-01** (Backup / Bacula):\n  - CPU: 53.2%\n  - Memória: 72.2%\n  - Disco: 93.1%\n  - Temperatura: 53.8°C\n  - Última coleta: Há 5 segundos\n\n- **srv-db-01** (Banco / PostgreSQL):\n  - CPU: 62.0%\n  - Memória: 84.0%\n  - Disco: 71.0%\n  - Temperatura: 59.1°C\n  - Última coleta: Há 5 segundos\n\nRecomendações:\n- Verifique o uso de disco e memória em ambos os servidores.\n- Monitore a temperatura, especialmente em srv-backup-01.\n- Verifique se há processos ou tarefas que possam estar causando o alto uso de CPU."
+    },
+    {
+      "pergunta": "Quais servidores estão em estado de aviso?",
+      "repeticao": 3,
+      "segundos": 5.7,
+      "correta": true,
+      "esperado": "esperado ['srv-backup-01', 'srv-db-01']",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "list_servers"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Os servidores em estado de aviso são:\n\n- **srv-backup-01** (Backup / Bacula):\n  - CPU: 53.2%\n  - Memória: 72.2%\n  - Disco: 93.1%\n  - Temperatura: 53.8°C\n  - Última coleta: há 10 segundos\n\n- **srv-db-01** (Banco / PostgreSQL):\n  - CPU: 62.0%\n  - Memória: 84.0%\n  - Disco: 71.0%\n  - Temperatura: 59.1°C\n  - Última coleta: há 10 segundos\n\nRecomendações:\n- Verifique o uso de disco e memória em ambos os servidores, especialmente em srv-backup-01, que está com 93.1% de ocupação.\n- Monitore a temperatura, que está alta em ambos os servidores.\n- Verifique se há alguma tarefa em execução que possa estar causando o aumento do uso de CPU e memória."
+    },
+    {
+      "pergunta": "Qual é o uso de disco do srv-backup-01 agora?",
+      "repeticao": 1,
+      "segundos": 4.1,
+      "correta": true,
+      "esperado": "esperado ~93.1%",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_server"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "O uso de disco do servidor `srv-backup-01` está em **93.1%**, que está acima do limiar de **85.0%** definido nas regras de gatilho. Este alerta está ativo há **23 horas e 56 minutos**.\n\n### Recomendações:\n- Verifique o espaço de armazenamento disponível e considere a expansão do disco ou a remoção de arquivos desnecessários.\n- Monitore o uso de disco nos próximos dias para garantir que o problema não se agrave.\n\nSe precisar de mais assistência, estou à disposição!"
+    },
+    {
+      "pergunta": "Qual é o uso de disco do srv-backup-01 agora?",
+      "repeticao": 2,
+      "segundos": 3.9,
+      "correta": true,
+      "esperado": "esperado ~93.1%",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_server"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "O uso de disco do servidor `srv-backup-01` está em **93.1%**, que está acima do limiar de **85.0%** definido pelas regras de gatilho. Este alerta está **ativo** há **23 horas e 56 minutos**.\n\n### Recomendações:\n- Verifique o motivo do uso de disco alto, possivelmente arquivos temporários ou backups não removidos.\n- Considere aumentar o armazenamento ou arquivar dados antigos.\n- Monitore o uso de disco para evitar problemas futuros."
+    },
+    {
+      "pergunta": "Qual é o uso de disco do srv-backup-01 agora?",
+      "repeticao": 3,
+      "segundos": 3.6,
+      "correta": true,
+      "esperado": "esperado ~93.1%",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_server"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "O uso de disco do servidor `srv-backup-01` está em **93.1%**, que está acima do limiar de **85.0%** definido pelas regras de gatilho. Este alerta está **ativo** há **23 horas e 56 minutos**.\n\n**Recomendação:** Verifique os arquivos de backup e considere a limpeza ou o armazenamento em outro local para evitar problemas de desempenho ou indisponibilidade do servidor."
+    },
+    {
+      "pergunta": "Existe algum alerta ativo no srv-web-01?",
+      "repeticao": 1,
+      "segundos": 1.5,
+      "correta": true,
+      "esperado": "esperado {'warning': 0, 'critical': 0}",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "list_alerts"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Não há alertas ativos no servidor `srv-web-01` no momento."
+    },
+    {
+      "pergunta": "Existe algum alerta ativo no srv-web-01?",
+      "repeticao": 2,
+      "segundos": 1.4,
+      "correta": true,
+      "esperado": "esperado {'warning': 0, 'critical': 0}",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "list_alerts"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Não há alertas ativos no servidor srv-web-01 no momento."
+    },
+    {
+      "pergunta": "Existe algum alerta ativo no srv-web-01?",
+      "repeticao": 3,
+      "segundos": 1.4,
+      "correta": true,
+      "esperado": "esperado {'warning': 0, 'critical': 0}",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "list_alerts"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Não há alertas ativos no servidor srv-web-01 no momento."
+    },
+    {
+      "pergunta": "Como está a temperatura do srv-app-02 nas últimas 6 horas?",
+      "repeticao": 1,
+      "segundos": 5.1,
+      "correta": true,
+      "esperado": "esperado mínimo/média/máximo próximos dos da API",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_metrics"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "A temperatura do servidor `srv-app-02` nas últimas 6 horas variou entre 74.8°C e 83.5°C, com uma média de 79.8°C. O valor atual é de 81.0°C. A tendência mostra uma leve queda (-2.2°C entre o início e o fim da janela), mas não há sinais de uma tendência de aumento ou diminuição significativa.\n\nNenhuma lacuna foi registrada na coleta de dados. Os valores variam, mas não há um padrão claro de aumento ou diminuição.\n\n### Recomendações:\n- Monitorar continuamente a temperatura.\n- Verificar se há problemas de refrigeração ou outros fatores que possam estar afetando a temperatura.\n- Se a temperatura continuar a aumentar, considere realizar uma manutenção preventiva."
+    },
+    {
+      "pergunta": "Como está a temperatura do srv-app-02 nas últimas 6 horas?",
+      "repeticao": 2,
+      "segundos": 4.7,
+      "correta": true,
+      "esperado": "esperado mínimo/média/máximo próximos dos da API",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_metrics"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "A temperatura do servidor `srv-app-02` nas últimas 6 horas variou entre 74.8°C e 83.5°C, com uma média de 79.8°C. O valor mais recente foi de 81.0°C às 21:30. A tendência mostra uma ligeira descida (-2.2°C) ao longo do período.\n\n### Recomendações:\n- Verifique se há problemas de refrigeração ou sobrecarga no servidor.\n- Monitorar continuamente a temperatura para garantir que não ultrapasse os limites críticos.\n\nSe a temperatura continuar a subir ou se houver outros alertas relacionados, considere realizar uma vistoria física no servidor."
+    },
+    {
+      "pergunta": "Como está a temperatura do srv-app-02 nas últimas 6 horas?",
+      "repeticao": 3,
+      "segundos": 4.9,
+      "correta": true,
+      "esperado": "esperado mínimo/média/máximo próximos dos da API",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_metrics"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "A temperatura do servidor `srv-app-02` nas últimas 6 horas variou entre 74.8°C e 83.5°C, com uma média de 79.8°C. O valor mais recente é de 81.0°C, e a tendência é de estabilidade, com uma redução de 2.2°C entre o início e o fim da janela.\n\nNenhuma lacuna foi observada na coleta de dados. A temperatura tem oscilado, mas não há um padrão claro de aumento ou diminuição significativo.\n\n### Recomendações:\n- Monitore continuamente a temperatura.\n- Verifique se há problemas de refrigeração ou sobrecarga do servidor.\n- Se a temperatura continuar alta, considere realizar uma manutenção preventiva."
+    },
+    {
+      "pergunta": "Quais são os limites de alerta de CPU que valem para o srv-db-01?",
+      "repeticao": 1,
+      "segundos": 3.4,
+      "correta": true,
+      "esperado": "esperado aviso 80% e crítico 90%",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_trigger_rules"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Os limites de alerta de CPU para o servidor `srv-db-01` são os seguintes:\n\n- **Alerta (Aviso):** 80.0%\n- **Crítico:** 90.0%\n\nEsses limites são globais e aplicam-se a todas as métricas de CPU monitoradas. A duração para gatilho de alerta é de 60 segundos.\n\nSe você precisar de mais informações ou tiver alguma outra pergunta, estou à disposição!"
+    },
+    {
+      "pergunta": "Quais são os limites de alerta de CPU que valem para o srv-db-01?",
+      "repeticao": 2,
+      "segundos": 2.7,
+      "correta": true,
+      "esperado": "esperado aviso 80% e crítico 90%",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_trigger_rules"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Os limites de alerta de CPU para o servidor `srv-db-01` são os seguintes:\n\n- **Alerta (Aviso):** CPU acima de 80%\n- **Crítico:** CPU acima de 90%\n- **Duração:** 1 minuto\n\nEssas regras são aplicáveis globalmente e estão ativas."
+    },
+    {
+      "pergunta": "Quais são os limites de alerta de CPU que valem para o srv-db-01?",
+      "repeticao": 3,
+      "segundos": 2.7,
+      "correta": true,
+      "esperado": "esperado aviso 80% e crítico 90%",
+      "ferramenta_adequada": true,
+      "ferramentas": [
+        "get_trigger_rules"
+      ],
+      "alucinou_servidor": [],
+      "resposta": "Os limites de alerta de CPU para o servidor `srv-db-01` são os seguintes:\n\n- **Alerta (Aviso):** CPU acima de 80%\n- **Crítico:** CPU acima de 90%\n- **Duração:** 1 minuto\n\nEssas regras são aplicáveis globalmente e estão ativas."
+    }
+  ]
+}

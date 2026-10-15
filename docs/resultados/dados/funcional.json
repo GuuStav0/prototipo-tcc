@@ -1,0 +1,67 @@
+{
+  "teste": "funcional",
+  "executado_em": "2026-10-15T00:16:26+00:00",
+  "maquina": {
+    "sistema": "Windows 10",
+    "processador": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "nucleos_logicos": 16,
+    "ram_gb": 31.9,
+    "frequencia_mhz": 3001,
+    "python": "3.12.10"
+  },
+  "backend_por_area": {
+    "API REST (servidores, métricas, alertas, relatórios, visão geral)": {
+      "total": 16,
+      "passou": 16,
+      "falhou": 0,
+      "pulado": 0
+    },
+    "Assistente de IA e servidor MCP": {
+      "total": 15,
+      "passou": 15,
+      "falhou": 0,
+      "pulado": 0
+    },
+    "Concorrência (muitos envios simultâneos)": {
+      "total": 1,
+      "passou": 1,
+      "falhou": 0,
+      "pulado": 0
+    },
+    "Motor de gatilhos": {
+      "total": 12,
+      "passou": 12,
+      "falhou": 0,
+      "pulado": 0
+    },
+    "InfluxDB x SQLite": {
+      "total": 1,
+      "passou": 0,
+      "falhou": 0,
+      "pulado": 1
+    },
+    "Servidores reais, watchdog e migração do banco": {
+      "total": 9,
+      "passou": 9,
+      "falhou": 0,
+      "pulado": 0
+    },
+    "Coletor SNMP (cálculos)": {
+      "total": 4,
+      "passou": 4,
+      "falhou": 0,
+      "pulado": 0
+    }
+  },
+  "backend_total": {
+    "total": 58,
+    "passou": 57,
+    "falhou": 0,
+    "pulado": 1
+  },
+  "frontend": {
+    "lint (ESLint)": "ok",
+    "build de produção (Vite)": "ok"
+  },
+  "atingiu_meta": true
+}

@@ -1,0 +1,333 @@
+{
+  "teste": "carga",
+  "executado_em": "2026-10-15T00:01:04+00:00",
+  "maquina": {
+    "sistema": "Windows 10",
+    "processador": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "nucleos_logicos": 16,
+    "ram_gb": 31.9,
+    "frequencia_mhz": 3001,
+    "python": "3.12.10"
+  },
+  "metodo": "N servidores simulados enviando 6 leituras cada, todos ao mesmo tempo, a cada 15 s; API com 1 processo, banco SQLite; o dashboard é consultado a cada 1 s durante a carga",
+  "limites": {
+    "ciclo_s": 15,
+    "dashboard_p95_ms": 2000,
+    "erros": 0
+  },
+  "niveis": [
+    {
+      "servidores": 10,
+      "leituras_por_ciclo": 60,
+      "envio_ms": {
+        "n": 40,
+        "media": 64.7,
+        "desvio": 26.2,
+        "min": 19.1,
+        "mediana": 64.0,
+        "p95": 104.9,
+        "max": 119.2
+      },
+      "erros": 0,
+      "ciclo_s": {
+        "n": 4,
+        "media": 0.1,
+        "desvio": 0.01,
+        "min": 0.09,
+        "mediana": 0.1,
+        "p95": 0.12,
+        "max": 0.12
+      },
+      "dashboard_ms": {
+        "n": 120,
+        "media": 5.5,
+        "desvio": 3.8,
+        "min": 3.5,
+        "mediana": 5.6,
+        "p95": 6.8,
+        "max": 37.4
+      },
+      "dashboard_falhas": 0,
+      "api_cpu_pct_um_nucleo": {
+        "n": 60,
+        "media": 1.6,
+        "desvio": 2.6,
+        "min": 0.0,
+        "mediana": 1.5,
+        "p95": 7.9,
+        "max": 13.8
+      },
+      "api_memoria_mb": {
+        "n": 60,
+        "media": 98.9,
+        "desvio": 0.4,
+        "min": 98.0,
+        "mediana": 99.1,
+        "p95": 99.2,
+        "max": 99.2
+      },
+      "dentro_dos_limites": true
+    },
+    {
+      "servidores": 50,
+      "leituras_por_ciclo": 300,
+      "envio_ms": {
+        "n": 200,
+        "media": 266.8,
+        "desvio": 116.1,
+        "min": 31.9,
+        "mediana": 264.4,
+        "p95": 447.0,
+        "max": 469.3
+      },
+      "erros": 0,
+      "ciclo_s": {
+        "n": 4,
+        "media": 0.47,
+        "desvio": 0.01,
+        "min": 0.46,
+        "mediana": 0.47,
+        "p95": 0.48,
+        "max": 0.48
+      },
+      "dashboard_ms": {
+        "n": 118,
+        "media": 11.4,
+        "desvio": 11.1,
+        "min": 6.8,
+        "mediana": 9.0,
+        "p95": 31.9,
+        "max": 101.9
+      },
+      "dashboard_falhas": 0,
+      "api_cpu_pct_um_nucleo": {
+        "n": 60,
+        "media": 4.9,
+        "desvio": 10.1,
+        "min": 0.0,
+        "mediana": 1.5,
+        "p95": 34.2,
+        "max": 44.6
+      },
+      "api_memoria_mb": {
+        "n": 60,
+        "media": 103.6,
+        "desvio": 1.6,
+        "min": 100.6,
+        "mediana": 104.6,
+        "p95": 105.6,
+        "max": 105.6
+      },
+      "dentro_dos_limites": true
+    },
+    {
+      "servidores": 100,
+      "leituras_por_ciclo": 600,
+      "envio_ms": {
+        "n": 400,
+        "media": 599.4,
+        "desvio": 219.3,
+        "min": 38.6,
+        "mediana": 628.1,
+        "p95": 903.2,
+        "max": 960.3
+      },
+      "erros": 0,
+      "ciclo_s": {
+        "n": 4,
+        "media": 0.96,
+        "desvio": 0.02,
+        "min": 0.94,
+        "mediana": 0.95,
+        "p95": 0.98,
+        "max": 0.98
+      },
+      "dashboard_ms": {
+        "n": 114,
+        "media": 25.7,
+        "desvio": 53.9,
+        "min": 10.9,
+        "mediana": 14.3,
+        "p95": 48.2,
+        "max": 443.0
+      },
+      "dashboard_falhas": 0,
+      "api_cpu_pct_um_nucleo": {
+        "n": 59,
+        "media": 9.2,
+        "desvio": 19.0,
+        "min": 0.0,
+        "mediana": 3.1,
+        "p95": 55.1,
+        "max": 92.2
+      },
+      "api_memoria_mb": {
+        "n": 59,
+        "media": 108.9,
+        "desvio": 2.6,
+        "min": 105.4,
+        "mediana": 107.3,
+        "p95": 112.2,
+        "max": 112.2
+      },
+      "dentro_dos_limites": true
+    },
+    {
+      "servidores": 250,
+      "leituras_por_ciclo": 1500,
+      "envio_ms": {
+        "n": 1000,
+        "media": 1779.3,
+        "desvio": 717.8,
+        "min": 66.2,
+        "mediana": 1966.5,
+        "p95": 2708.0,
+        "max": 2876.5
+      },
+      "erros": 0,
+      "ciclo_s": {
+        "n": 4,
+        "media": 2.85,
+        "desvio": 0.05,
+        "min": 2.8,
+        "mediana": 2.84,
+        "p95": 2.91,
+        "max": 2.92
+      },
+      "dashboard_ms": {
+        "n": 98,
+        "media": 114.9,
+        "desvio": 328.8,
+        "min": 23.7,
+        "mediana": 36.7,
+        "p95": 276.0,
+        "max": 1927.7
+      },
+      "dashboard_falhas": 0,
+      "api_cpu_pct_um_nucleo": {
+        "n": 60,
+        "media": 20.6,
+        "desvio": 31.8,
+        "min": 0.0,
+        "mediana": 7.7,
+        "p95": 98.4,
+        "max": 109.4
+      },
+      "api_memoria_mb": {
+        "n": 60,
+        "media": 122.7,
+        "desvio": 6.9,
+        "min": 113.3,
+        "mediana": 126.5,
+        "p95": 130.7,
+        "max": 130.8
+      },
+      "dentro_dos_limites": true
+    },
+    {
+      "servidores": 500,
+      "leituras_por_ciclo": 3000,
+      "envio_ms": {
+        "n": 2000,
+        "media": 4569.8,
+        "desvio": 2570.6,
+        "min": 117.3,
+        "mediana": 4199.0,
+        "p95": 8362.2,
+        "max": 8525.0
+      },
+      "erros": 0,
+      "ciclo_s": {
+        "n": 4,
+        "media": 8.51,
+        "desvio": 0.08,
+        "min": 8.44,
+        "mediana": 8.51,
+        "p95": 8.6,
+        "max": 8.6
+      },
+      "dashboard_ms": {
+        "n": 52,
+        "media": 592.5,
+        "desvio": 1370.8,
+        "min": 44.4,
+        "mediana": 77.9,
+        "p95": 3604.4,
+        "max": 6446.8
+      },
+      "dashboard_falhas": 0,
+      "api_cpu_pct_um_nucleo": {
+        "n": 59,
+        "media": 36.9,
+        "desvio": 41.8,
+        "min": 0.0,
+        "mediana": 12.3,
+        "p95": 107.9,
+        "max": 113.8
+      },
+      "api_memoria_mb": {
+        "n": 59,
+        "media": 148.1,
+        "desvio": 12.9,
+        "min": 127.4,
+        "mediana": 156.0,
+        "p95": 160.1,
+        "max": 160.1
+      },
+      "dentro_dos_limites": false
+    },
+    {
+      "servidores": 1000,
+      "leituras_por_ciclo": 6000,
+      "envio_ms": {
+        "n": 4000,
+        "media": 12249.9,
+        "desvio": 3130.7,
+        "min": 243.4,
+        "mediana": 13549.9,
+        "p95": 14465.5,
+        "max": 14618.7
+      },
+      "erros": 0,
+      "ciclo_s": {
+        "n": 4,
+        "media": 14.41,
+        "desvio": 0.4,
+        "min": 13.81,
+        "mediana": 14.6,
+        "p95": 14.65,
+        "max": 14.65
+      },
+      "dashboard_ms": {
+        "n": 10,
+        "media": 5563.4,
+        "desvio": 4244.5,
+        "min": 118.8,
+        "mediana": 5828.7,
+        "p95": 11246.6,
+        "max": 13660.6
+      },
+      "dashboard_falhas": 0,
+      "api_cpu_pct_um_nucleo": {
+        "n": 60,
+        "media": 59.1,
+        "desvio": 43.9,
+        "min": 0.0,
+        "mediana": 86.0,
+        "p95": 104.6,
+        "max": 107.7
+      },
+      "api_memoria_mb": {
+        "n": 60,
+        "media": 217.3,
+        "desvio": 13.1,
+        "min": 156.2,
+        "mediana": 222.3,
+        "p95": 225.1,
+        "max": 225.1
+      },
+      "dentro_dos_limites": false
+    }
+  ],
+  "maior_carga_suportada": 250
+}

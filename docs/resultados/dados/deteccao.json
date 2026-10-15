@@ -1,0 +1,239 @@
+{
+  "teste": "deteccao",
+  "executado_em": "2026-10-14T23:46:16+00:00",
+  "maquina": {
+    "sistema": "Windows 10",
+    "processador": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "nucleos_logicos": 16,
+    "ram_gb": 31.9,
+    "frequencia_mhz": 3001,
+    "python": "3.12.10"
+  },
+  "meta": "< 90 s entre o início da falha e a exibição do alerta no dashboard",
+  "metodo": "falha injetada pelo coletor simulado; cronômetro até a linha do alerta aparecer na tela de Gatilhos do painel aberto no Microsoft Edge (build de produção, atualização a cada 10 s)",
+  "total_s": {
+    "n": 10,
+    "media": 70.4,
+    "desvio": 7.5,
+    "min": 55.3,
+    "mediana": 70.2,
+    "p95": 79.6,
+    "max": 80.5
+  },
+  "espera_coleta_s": {
+    "n": 10,
+    "media": 5.0,
+    "desvio": 4.6,
+    "min": 0.2,
+    "mediana": 2.9,
+    "p95": 12.0,
+    "max": 13.8
+  },
+  "confirmacao_s": {
+    "n": 10,
+    "media": 57.0,
+    "desvio": 6.3,
+    "min": 45.0,
+    "mediana": 60.0,
+    "p95": 60.0,
+    "max": 60.0
+  },
+  "exibicao_s": {
+    "n": 10,
+    "media": 8.4,
+    "desvio": 2.6,
+    "min": 4.9,
+    "mediana": 10.1,
+    "p95": 10.7,
+    "max": 10.8
+  },
+  "resolucao_s": {
+    "n": 10,
+    "media": 69.6,
+    "desvio": 20.5,
+    "min": 50.0,
+    "mediana": 64.6,
+    "p95": 100.2,
+    "max": 124.9
+  },
+  "por_metrica": {
+    "cpu": {
+      "n": 2,
+      "media": 72.8,
+      "desvio": 7.4,
+      "min": 67.5,
+      "mediana": 72.8,
+      "p95": 77.5,
+      "max": 78.0
+    },
+    "ram": {
+      "n": 2,
+      "media": 71.7,
+      "desvio": 0.4,
+      "min": 71.4,
+      "mediana": 71.7,
+      "p95": 72.0,
+      "max": 72.0
+    },
+    "disk": {
+      "n": 2,
+      "media": 79.5,
+      "desvio": 1.4,
+      "min": 78.5,
+      "mediana": 79.5,
+      "p95": 80.4,
+      "max": 80.5
+    },
+    "temp": {
+      "n": 2,
+      "media": 68.2,
+      "desvio": 1.1,
+      "min": 67.4,
+      "mediana": 68.2,
+      "p95": 68.8,
+      "max": 68.9
+    },
+    "reachable": {
+      "n": 2,
+      "media": 59.9,
+      "desvio": 6.4,
+      "min": 55.3,
+      "mediana": 59.9,
+      "p95": 63.9,
+      "max": 64.4
+    }
+  },
+  "tentativas": [
+    {
+      "host": "srv-monitor-01",
+      "metrica": "cpu",
+      "gatilho": "CPU elevada",
+      "alerta_id": 7,
+      "inicio_falha": "2026-10-14T23:32:23.413290+00:00",
+      "fim_falha": "2026-10-14T23:33:30.900975+00:00",
+      "espera_coleta_s": 2.6,
+      "confirmacao_s": 60.0,
+      "exibicao_s": 4.9,
+      "total_s": 67.5,
+      "resolucao_s": 70.1
+    },
+    {
+      "host": "srv-web-02",
+      "metrica": "disk",
+      "gatilho": "Disco quase cheio",
+      "alerta_id": 8,
+      "inicio_falha": "2026-10-14T23:33:32.679482+00:00",
+      "fim_falha": "2026-10-14T23:34:51.141039+00:00",
+      "espera_coleta_s": 8.3,
+      "confirmacao_s": 60.0,
+      "exibicao_s": 10.1,
+      "total_s": 78.5,
+      "resolucao_s": 124.9
+    },
+    {
+      "host": "srv-web-02",
+      "metrica": "reachable",
+      "gatilho": "Host inalcançável",
+      "alerta_id": 9,
+      "inicio_falha": "2026-10-14T23:34:55.779587+00:00",
+      "fim_falha": "2026-10-14T23:35:51.043578+00:00",
+      "espera_coleta_s": 0.2,
+      "confirmacao_s": 45.0,
+      "exibicao_s": 10.0,
+      "total_s": 55.3,
+      "resolucao_s": 50.0
+    },
+    {
+      "host": "srv-app-01",
+      "metrica": "cpu",
+      "gatilho": "CPU elevada",
+      "alerta_id": 10,
+      "inicio_falha": "2026-10-14T23:36:03.296687+00:00",
+      "fim_falha": "2026-10-14T23:37:21.285996+00:00",
+      "espera_coleta_s": 7.7,
+      "confirmacao_s": 60.0,
+      "exibicao_s": 10.3,
+      "total_s": 78.0,
+      "resolucao_s": 64.7
+    },
+    {
+      "host": "srv-cache-01",
+      "metrica": "temp",
+      "gatilho": "Temperatura elevada",
+      "alerta_id": 11,
+      "inicio_falha": "2026-10-14T23:37:24.006873+00:00",
+      "fim_falha": "2026-10-14T23:38:31.387351+00:00",
+      "espera_coleta_s": 2.0,
+      "confirmacao_s": 60.0,
+      "exibicao_s": 5.4,
+      "total_s": 67.4,
+      "resolucao_s": 69.6
+    },
+    {
+      "host": "srv-mail-01",
+      "metrica": "ram",
+      "gatilho": "Memória elevada",
+      "alerta_id": 12,
+      "inicio_falha": "2026-10-14T23:38:40.123077+00:00",
+      "fim_falha": "2026-10-14T23:39:51.529421+00:00",
+      "espera_coleta_s": 0.9,
+      "confirmacao_s": 60.0,
+      "exibicao_s": 10.5,
+      "total_s": 71.4,
+      "resolucao_s": 64.5
+    },
+    {
+      "host": "srv-web-01",
+      "metrica": "disk",
+      "gatilho": "Disco quase cheio",
+      "alerta_id": 13,
+      "inicio_falha": "2026-10-14T23:40:01.124329+00:00",
+      "fim_falha": "2026-10-14T23:41:21.624864+00:00",
+      "espera_coleta_s": 9.9,
+      "confirmacao_s": 60.0,
+      "exibicao_s": 10.6,
+      "total_s": 80.5,
+      "resolucao_s": 64.4
+    },
+    {
+      "host": "srv-monitor-01",
+      "metrica": "reachable",
+      "gatilho": "Host inalcançável",
+      "alerta_id": 14,
+      "inicio_falha": "2026-10-14T23:41:27.221447+00:00",
+      "fim_falha": "2026-10-14T23:42:31.621276+00:00",
+      "espera_coleta_s": 13.8,
+      "confirmacao_s": 45.0,
+      "exibicao_s": 5.6,
+      "total_s": 64.4,
+      "resolucao_s": 54.4
+    },
+    {
+      "host": "srv-app-01",
+      "metrica": "ram",
+      "gatilho": "Memória elevada",
+      "alerta_id": 15,
+      "inicio_falha": "2026-10-14T23:42:39.846418+00:00",
+      "fim_falha": "2026-10-14T23:43:51.828021+00:00",
+      "espera_coleta_s": 1.2,
+      "confirmacao_s": 60.0,
+      "exibicao_s": 10.8,
+      "total_s": 72.0,
+      "resolucao_s": 64.2
+    },
+    {
+      "host": "srv-db-02",
+      "metrica": "temp",
+      "gatilho": "Temperatura elevada",
+      "alerta_id": 16,
+      "inicio_falha": "2026-10-14T23:43:52.781284+00:00",
+      "fim_falha": "2026-10-14T23:45:01.711524+00:00",
+      "espera_coleta_s": 3.2,
+      "confirmacao_s": 60.0,
+      "exibicao_s": 5.7,
+      "total_s": 68.9,
+      "resolucao_s": 69.3
+    }
+  ],
+  "atingiu_meta": true
+}

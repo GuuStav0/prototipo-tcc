@@ -1,0 +1,38 @@
+{
+  "teste": "recursos_agente",
+  "executado_em": "2026-10-15T00:25:44+00:00",
+  "maquina": {
+    "sistema": "Windows 10",
+    "processador": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "nucleos_logicos": 16,
+    "ram_gb": 31.9,
+    "frequencia_mhz": 3001,
+    "python": "3.12.10"
+  },
+  "processo": "agent/smi_agent.py nesta máquina",
+  "meta": "< 5% CPU e < 256 MB",
+  "minutos": 10.0,
+  "cpu_pct_um_nucleo": {
+    "n": 300,
+    "media": 0.03,
+    "desvio": 0.14,
+    "min": 0.0,
+    "mediana": 0.0,
+    "p95": 0.0,
+    "max": 0.8
+  },
+  "cpu_pct_maquina_media": 0.002,
+  "tempo_cpu_s": 0.16,
+  "memoria_mb": {
+    "n": 300,
+    "media": 25.2,
+    "desvio": 0.2,
+    "min": 25.0,
+    "mediana": 25.1,
+    "p95": 25.7,
+    "max": 25.7
+  },
+  "nucleos": 16,
+  "atingiu_meta": true,
+  "leituras_de_cpu_recebidas": 41
+}

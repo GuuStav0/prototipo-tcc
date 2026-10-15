@@ -18,7 +18,7 @@ O dashboard lê todos os dados da API. Os servidores podem ser **reais**, como a
 | Armazenamento (InfluxDB) | ✅ InfluxDB 2.x ou SQLite (desenvolvimento) |
 | Servidor MCP + IA | ✅ Ollama (padrão) ou Claude; chat e análise dos relatórios |
 | Coleta real | ✅ agente para Linux (envio) e coletor SNMP v3 (consulta), com detecção de queda; IPMI não testado (sem hardware) |
-| Testes da seção 4.5 | ⏳ a fazer (etapa 6) |
+| Testes da seção 4.5 | ✅ automatizados, resultados em [`docs/resultados/RESULTADOS.md`](docs/resultados/RESULTADOS.md); faltam a disponibilidade de 24 h e a medição na VPS |
 
 ## Stack do front-end
 
@@ -133,6 +133,7 @@ backend/          # API REST, motor de gatilhos, assistente de IA, servidor MCP 
 └── collector/    # coletor SNMP v3 + configuração do snmpd
 docs/contrato/    # contrato da API (OpenAPI) e explicação das decisões
 docs/vps/         # guia para monitorar a VPS real (Tailscale, agente, SNMP)
+docs/resultados/  # resultados dos testes da etapa 6 (tabelas, gráficos e dados brutos)
 src/
 ├── api/          # cliente HTTP da API (client.js)
 ├── components/   # componentes reutilizáveis (KpiCard, Led, MetricBar, AlertTable, ChatPanel, gráficos…)

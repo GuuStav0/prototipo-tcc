@@ -1,0 +1,29 @@
+{
+  "teste": "disponibilidade",
+  "executado_em": "2026-10-15T00:46:31+00:00",
+  "maquina": {
+    "sistema": "Windows 10",
+    "processador": "AMD64 Family 25 Model 33 Stepping 2, AuthenticAMD",
+    "nucleos_logicos": 16,
+    "ram_gb": 31.9,
+    "frequencia_mhz": 3001,
+    "python": "3.12.10"
+  },
+  "meta": "99.0% de disponibilidade durante o período de testes",
+  "inicio": "2026-10-15T00:46:09+00:00",
+  "horas": 0.01,
+  "verificacoes": 2,
+  "ok": 2,
+  "disponibilidade_pct": 100.0,
+  "quedas": [],
+  "latencia_health_ms": {
+    "n": 2,
+    "media": 251.4,
+    "desvio": 46.7,
+    "min": 218.4,
+    "mediana": 251.4,
+    "p95": 281.1,
+    "max": 284.4
+  },
+  "atingiu_meta": true
+}
